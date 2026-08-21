@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Search Board — Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6F8; --surface:#FFFFFF; --ink:#1C2733; --muted:#78829A; --line:#E4E8EE;
+  --accent:#2456A6; --accent-ink:#FFFFFF;
+  --orange-bg:#F5A623; --orange-ink:#3D2B00;
+  --green-bg:#34A853; --green-ink:#FFFFFF;
+  --danger:#B3261E; --gold:#B98A1E;
+  --g-backlog:#D97E00; --g-active:#2456A6; --g-decided:#8A94A6;
+  --radius:14px; --card-radius:12px;
+  --shadow:0 1px 2px rgba(28,39,51,.06),0 4px 12px rgba(28,39,51,.05);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 'Inter',system-ui,-apple-system,sans-serif;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:16px;padding:14px 22px;background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:wrap}
+header h1{font:700 19px 'Sora',system-ui,sans-serif;margin:0;letter-spacing:-.02em}
+header h1 span{color:var(--accent)}
+.tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:10px}
+.tabs button{border:0;background:transparent;padding:6px 14px;border-radius:8px;font:600 13.5px 'Inter',sans-serif;color:var(--muted);cursor:pointer}
+.tabs button.active{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.spacer{flex:1}
+.btn{border:0;border-radius:9px;padding:8px 15px;font:600 13.5px 'Inter',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn-ghost:hover{color:var(--ink)}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid #ECC9C6}
+.btn-danger:hover{background:#FBEFEE}
+.sortwrap{display:flex;align-items:center;gap:7px;font:600 12.5px 'Inter',sans-serif;color:var(--muted)}
+.sortwrap select{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:7px 9px;font:600 13px 'Inter',sans-serif;cursor:pointer}
+.sortwrap select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+main{flex:1;overflow:hidden;display:flex}
+/* ---------- Progress sidebar ---------- */
+#side{width:242px;min-width:242px;background:var(--surface);border-right:1px solid var(--line);padding:18px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+#side h4{font:600 12px 'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.gstat{padding:10px 12px;border-radius:11px;margin-bottom:8px;background:var(--bg)}
+.gstat .n{font:700 34px/1.05 'Sora',sans-serif}
+.gstat .l{font:600 12.5px 'Inter',sans-serif;color:var(--muted);margin-top:3px}
+.gstat.g-backlog .n{color:var(--g-backlog)}
+.gstat.g-active  .n{color:var(--g-active)}
+.gstat.g-decided .n{color:var(--g-decided)}
+.gstat .mini{font:600 12px 'Inter',sans-serif;color:var(--gold);margin-top:4px}
+.gstat .rate{font:500 11.5px 'Inter',sans-serif;color:var(--muted);margin-top:4px}
+#sideChart,#sideChart2{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px}
+.legend span{display:inline-flex;align-items:center;gap:5px;font:500 11.5px 'Inter',sans-serif;color:var(--muted)}
+.legend i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+/* ---------- Board ---------- */
+#board{flex:1;display:flex;gap:14px;overflow-x:auto;padding:12px 22px 18px;align-items:stretch}
+.ggroup{display:flex;flex-direction:column;flex:0 0 auto;max-height:100%}
+.glabel{font:700 13px 'Sora',sans-serif;letter-spacing:.02em;padding:2px 4px 8px;white-space:nowrap}
+.glabel .gcount{font:600 11.5px 'Inter',sans-serif;color:var(--muted);margin-left:6px}
+.ggroup.g-backlog .glabel{color:var(--g-backlog)}
+.ggroup.g-active  .glabel{color:var(--g-active)}
+.ggroup.g-decided .glabel{color:var(--g-decided)}
+.gcols{display:flex;gap:14px;align-items:flex-start;flex:1;min-height:0}
+.gdivider{align-self:stretch;width:0;border-left:2px dashed var(--line);margin:6px 3px;flex:0 0 auto}
+.gdivider.g-backlog{border-color:var(--g-backlog)}
+.gdivider.g-active{border-color:var(--g-active)}
+.gdivider.g-decided{border-color:var(--g-decided)}
+.col{min-width:272px;max-width:272px;background:#EDF0F4;border:1px solid var(--line);border-radius:var(--radius);display:flex;flex-direction:column;max-height:100%}
+.col.won{background:linear-gradient(180deg,#FBF5E3,#F3ECD6);border-color:#E4D6A8}
+.col.col-dragging{opacity:.4}
+.col.col-drop-left{box-shadow:-3px 0 0 var(--accent)}
+.col.col-drop-right{box-shadow:3px 0 0 var(--accent)}
+.col-head{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);cursor:grab}
+.col-head:active{cursor:grabbing}
+.col.won .col-head{border-color:#E4D6A8}
+.col-head h2{font:600 15px 'Sora',sans-serif;margin:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.col.won .col-head h2{color:var(--gold)}
+.rename-input{flex:1;min-width:0;font:600 15px 'Sora',sans-serif;color:var(--ink);border:1px solid var(--accent);border-radius:7px;padding:3px 6px;background:var(--surface)}
+.rename-input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.count{background:var(--surface);border:1px solid var(--line);color:var(--muted);font:600 12px 'Inter',sans-serif;min-width:24px;height:24px;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:0 7px}
+.add-mini{border:0;background:transparent;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;border-radius:6px;width:26px;height:26px}
+.add-mini:hover{background:var(--surface);color:var(--accent)}
+.col-body{padding:10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;min-height:60px}
+.col-body.dragover{outline:2px dashed var(--accent);outline-offset:-6px;border-radius:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--card-radius);padding:12px 13px;cursor:grab;box-shadow:var(--shadow);position:relative}
+.card:active{cursor:grabbing}
+.card:hover{border-color:#C9D4E4}
+.card.dragging{opacity:.45}
+.card h3{margin:0 0 2px;font:600 14.5px/1.35 'Inter',sans-serif;padding-right:20px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .co{color:var(--ink);opacity:.75;font-size:13px}
+.card .meta{display:flex;align-items:center;gap:8px;margin-top:9px;flex-wrap:wrap}
+.card .date{color:var(--muted);font-size:12.5px}
+.card .chip{color:var(--muted);font-size:12px}
+.src{font:600 11.5px 'Inter',sans-serif;padding:4px 10px;border-radius:999px;white-space:nowrap;background:#E9EEF6;color:#33507E}
+.card a.linkico{position:absolute;top:10px;right:10px;color:var(--muted);text-decoration:none;line-height:1}
+.card a.linkico:hover{color:var(--accent)}
+.empty-hint{color:var(--muted);font-size:12.5px;text-align:center;padding:8px 4px}
+/* ---------- Modals ---------- */
+dialog{border:0;border-radius:18px;padding:0;width:min(700px,96vw);box-shadow:0 24px 64px rgba(20,30,45,.25)}
+dialog#jobModal{width:min(1000px,96vw)}
+dialog::backdrop{background:rgba(20,30,45,.45)}
+.modal-inner{padding:26px 28px 22px}
+.modal-inner h2{font:700 20px 'Sora',sans-serif;margin:0 0 6px}
+.modal-inner .hint{color:var(--muted);font-size:13px;margin:0 0 18px}
+.modal-grid{display:grid;grid-template-columns:1.15fr .9fr;gap:24px;margin-top:16px}
+.field{position:relative;margin-bottom:16px}
+.field label{position:absolute;top:-8px;left:12px;background:var(--surface);padding:0 5px;font:500 12px 'Inter',sans-serif;color:var(--muted);z-index:1}
+.field input,.field textarea,.field select{width:100%;border:1px solid #C6CEDA;border-radius:9px;padding:11px 12px;font:400 14.5px 'Inter',sans-serif;color:var(--ink);background:var(--surface)}
+.field textarea{min-height:110px;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.url-row{display:flex;gap:8px;align-items:stretch}
+.url-row .field{flex:1;margin-bottom:0}
+.url-open{border:1px solid #C6CEDA;background:var(--surface);border-radius:9px;width:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);text-decoration:none}
+.url-open:hover{border-color:var(--accent);color:var(--accent)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal-actions{display:flex;align-items:center;gap:12px;margin-top:20px;justify-content:flex-end;flex-wrap:wrap}
+/* ---------- Contact history ---------- */
+.chwrap{border:1px solid var(--line);border-radius:13px;padding:16px 16px 12px;background:#FAFBFC;max-height:520px;overflow-y:auto}
+.chwrap h3{font:600 14px 'Sora',sans-serif;margin:0 0 12px}
+.chist{position:relative;padding-left:20px}
+.chist::before{content:'';position:absolute;left:7px;top:10px;bottom:10px;border-left:2px solid #D5DBE4}
+.centry{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin-bottom:12px}
+.centry::before{content:'';position:absolute;left:-18px;top:15px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);box-shadow:0 0 0 1.5px var(--accent)}
+.centry textarea{width:100%;border:0;background:transparent;font:400 13.5px/1.45 'Inter',sans-serif;color:var(--ink);resize:vertical;min-height:44px;padding:2px}
+.centry textarea:focus{outline:none}
+.centry .crow{display:flex;align-items:center;gap:8px;margin-top:6px;border-top:1px dashed var(--line);padding-top:7px}
+.centry .crow input[type=date]{border:1px solid var(--line);border-radius:7px;padding:4px 7px;font:500 12.5px 'Inter',sans-serif;color:var(--muted);background:var(--surface)}
+.centry .crow input[type=date]:focus{outline:2px solid var(--accent);outline-offset:-1px;color:var(--ink)}
+.centry .cdel{margin-left:auto;border:0;background:transparent;color:var(--muted);cursor:pointer;border-radius:6px;width:24px;height:24px;font-size:13px;line-height:1}
+.centry .cdel:hover{color:var(--danger);background:#FBEFEE}
+.ch-add{position:relative;margin-left:20px}
+.ch-add::before{content:'';position:absolute;left:-13px;top:-14px;height:14px;border-left:2px solid #D5DBE4}
+.ch-empty{color:var(--muted);font-size:13px;margin:0 0 12px}
+/* ---------- Sources editor ---------- */
+.src-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:11px;margin-bottom:8px;background:var(--surface)}
+.src-row input{border:1px solid #C6CEDA;border-radius:8px;padding:8px 9px;font:500 14px 'Inter',sans-serif;color:var(--ink);background:var(--surface);width:100%}
+.src-row input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.src-manage{border:1px solid #C6CEDA;background:var(--surface);border-radius:9px;width:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted)}
+.src-manage:hover{border-color:var(--accent);color:var(--accent)}
+.about-body{font-size:14.5px;line-height:1.6;margin:6px 0 2px}
+.about-body a{color:var(--accent)}
+/* ---------- Category editor ---------- */
+.col-list{max-height:52vh;overflow-y:auto;padding-right:2px}
+.col-row{display:grid;grid-template-columns:1fr 150px auto;gap:8px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:11px;margin-bottom:8px;background:var(--surface)}
+.col-row input,.col-row select{border:1px solid #C6CEDA;border-radius:8px;padding:8px 9px;font:500 14px 'Inter',sans-serif;color:var(--ink);background:var(--surface);width:100%}
+.col-row input:focus,.col-row select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.row-btns{display:flex;gap:3px;align-items:center}
+.iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:8px;width:30px;height:32px;cursor:pointer;font-size:13px;line-height:1}
+.iconbtn:hover:not(:disabled){color:var(--ink);border-color:#C9D4E4}
+.iconbtn:disabled{opacity:.3;cursor:default}
+.iconbtn.del:hover:not(:disabled){color:var(--danger);border-color:#ECC9C6;background:#FBEFEE}
+.row-count{font:600 11.5px 'Inter',sans-serif;color:var(--muted);white-space:nowrap;padding-right:5px}
+.confirm{grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#FBEFEE;border-radius:9px;padding:9px 10px;margin-top:4px}
+.confirm p{margin:0;font-size:13px;color:var(--ink);flex:1;min-width:170px}
+.confirm select{width:auto;min-width:150px}
+.confirm .btn{padding:6px 12px}
+/* ---------- Metrics ---------- */
+#metrics{flex:1;overflow-y:auto;padding:22px;display:none}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;max-width:1200px;margin:0 auto}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+.panel h3{font:600 15px 'Sora',sans-serif;margin:0 0 4px}
+.panel .sub{color:var(--muted);font-size:12.5px;margin:0 0 14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
+.stat{background:var(--bg);border-radius:10px;padding:12px 14px}
+.stat .n{font:700 26px 'Sora',sans-serif}
+.stat .l{color:var(--muted);font-size:12.5px;margin-top:2px}
+svg text{font-family:'Inter',sans-serif}
+footer{padding:8px 22px 14px;color:var(--muted);font-size:12px;text-align:center}
+@media (max-width:900px){
+  main{flex-direction:column}
+  #side{width:100%;min-width:0;border-right:0;border-bottom:1px solid var(--line);flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:10px;padding:12px 16px;max-height:none;overflow:visible}
+  #side h4{width:100%;margin-bottom:2px}
+  .gstat{flex:1;min-width:110px;margin-bottom:0}
+  #sideChart{border-top:0;padding-top:0;margin-top:0;flex-basis:100%}
+}
+@media (max-width:760px){ .modal-grid{grid-template-columns:1fr} .two-col{grid-template-columns:1fr} header{gap:10px} .col-row{grid-template-columns:1fr auto} }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Job Search <span>Board</span></h1>
+  <label class="sortwrap">Sort
+    <select id="sortSel" onchange="setSort(this.value)">
+      <option value="manual">My Preference (drag)</option>
+      <option value="date-desc">Date — newest first</option>
+      <option value="date-asc">Date — oldest first</option>
+      <option value="company-asc">Company — A to Z</option>
+      <option value="company-desc">Company — Z to A</option>
+    </select>
+  </label>
+  <div class="spacer"></div>
+  <button class="btn btn-primary" onclick="openModal(null)">＋ Add job</button>
+  <button class="btn btn-ghost" onclick="openColumns()">☰ Categories</button>
+  <button class="btn btn-ghost" onclick="exportJSON()">Export</button>
+  <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">Import</button>
+  <button class="btn btn-ghost" onclick="document.getElementById('aboutModal').showModal()">ⓘ About</button>
+  <button class="btn btn-danger" onclick="document.getElementById('clearModal').showModal()">Clear board</button>
+  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+</header>
+
+<main>
+  <aside id="side"></aside>
+  <div class="content">
+    <div id="board"></div>
+  </div>
+</main>
+
+<footer>Demo with fictional data. Everything is stored locally in this browser (localStorage) — use Export / Import to move boards.</footer>
+
+<dialog id="jobModal">
+  <div class="modal-inner">
+    <h2 id="modalTitle">Edit Job</h2>
+    <div class="modal-grid">
+      <div>
+        <div class="field"><label>Job Title</label><input id="fTitle"></div>
+        <div class="field"><label>Company Name</label><input id="fCompany"></div>
+        <div class="two-col">
+          <div class="field"><label>Location</label><input id="fLocation"></div>
+          <div class="field"><label>Date</label><input id="fDate" type="date"></div>
+        </div>
+        <div class="url-row" style="margin-bottom:16px">
+          <div class="field"><label>URL</label><input id="fUrl" placeholder="https://…"></div>
+          <a id="fUrlOpen" class="url-open" target="_blank" rel="noopener" title="Open link">⧉</a>
+        </div>
+        <div class="two-col">
+          <div class="field"><label>Category</label>
+            <select id="fStatus"></select>
+          </div>
+          <div class="field"><label>Found via</label>
+            <div class="url-row">
+              <div class="field" style="margin-bottom:0"><select id="fSource"></select></div>
+              <button type="button" class="src-manage" title="Edit sources" onclick="openSources()">✎</button>
+            </div>
+          </div>
+        </div>
+        <div class="field"><label>Job Description</label><textarea id="fDesc"></textarea></div>
+      </div>
+      <div class="chwrap">
+        <h3>Contact History</h3>
+        <p class="ch-empty" id="chEmpty">No contacts logged yet. Each entry gets its own date — the default is today.</p>
+        <div class="chist" id="chList"></div>
+        <button class="btn btn-ghost ch-add" onclick="addContact()">＋ Add contact event</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" id="btnRemove" onclick="removeJob()">🗑 Remove From Board</button>
+      <button class="btn btn-primary" onclick="saveJob()">Done</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="srcModal">
+  <div class="modal-inner">
+    <h2>Sources</h2>
+    <p class="hint">Where jobs are found. Rename, add, or delete — deleting a source resets its jobs to “Not defined”.</p>
+    <div id="srcList" class="col-list"></div>
+    <button class="btn btn-ghost" onclick="addSource()" style="margin-top:4px">＋ Add source</button>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="closeSources()">Done</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="clearModal">
+  <div class="modal-inner">
+    <h2>Clear the whole board?</h2>
+    <p class="hint">This removes every card, along with its contact history, and resets the categories and sources to the defaults. This cannot be undone — export first if you might want the data back.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('clearModal').close()">No</button>
+      <button class="btn btn-danger" onclick="clearBoard(false)">Clear</button>
+      <button class="btn btn-primary" onclick="clearBoard(true)">Export and clear</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="aboutModal">
+  <div class="modal-inner">
+    <h2>About this board</h2>
+    <p class="about-body">Made by <strong>Robert G. West, PhD</strong> with Claude.<br>
+    Contact: <a href="mailto:westrobertg@gmail.com">westrobertg@gmail.com</a></p>
+    <p class="hint" style="margin-top:10px">A single-file Kanban board for the job search. This demo is seeded with fictional companies and data. Everything lives in your browser (localStorage); use Export / Import to back up or share.</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="document.getElementById('aboutModal').close()">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="colModal">
+  <div class="modal-inner">
+    <h2>Categories</h2>
+    <p class="hint">Rename a category, move it left or right, or delete it. On the board you can also drag a category by its header, or double-click its name to rename it. Stage tells the sidebar how to count those cards, and where the group titles and dashed dividers fall.</p>
+    <div id="colList" class="col-list"></div>
+    <button class="btn btn-ghost" onclick="addColumn()" style="margin-top:4px">＋ Add category</button>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="document.getElementById('colModal').close()">Done</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+/* ---------- Storage keys ---------- */
+const JOBS_KEY = 'jobBoardDemo.v1';
+const COLS_KEY = 'jobBoardDemo.columns.v1';
+const SORT_KEY = 'jobBoardDemo.sort.v1';
+const SRC_KEY  = 'jobBoardDemo.sources.v1';
+
+const KINDS = [
+  {id:'backlog', label:'To apply'},
+  {id:'pipeline',label:'Active stage'},
+  {id:'closed',  label:'Closed'},
+  {id:'won',     label:'Success'},
+];
+
+/* Sidebar groups: which stage kinds roll up into which big number */
+const GROUPS = [
+  {id:'backlog', label:'To apply',    kinds:['backlog'],       cssVar:'var(--g-backlog)'},
+  {id:'active',  label:'In progress', kinds:['pipeline'],      cssVar:'var(--g-active)'},
+  {id:'decided', label:'Decided',     kinds:['closed','won'],  cssVar:'var(--g-decided)'},
+];
+function kindGroup(kind){
+  const g = GROUPS.find(g=>g.kinds.includes(kind));
+  return g ? g.id : null;
+}
+
+const DEFAULT_COLUMNS = [
+  {id:'saved',          name:'Saved',              kind:'backlog'},
+  {id:'favorites',      name:'Favorites',          kind:'backlog'},
+  {id:'applied',        name:'Applied',            kind:'pipeline'},
+  {id:'cmsx8o49cmpr1m', name:'Unsolicited Contact',kind:'pipeline'},
+  {id:'interview',      name:'Interview',          kind:'pipeline'},
+  {id:'offer',          name:'Offer',              kind:'pipeline'},
+  {id:'withdrew',       name:'Withdrew',           kind:'closed'},
+  {id:'rejected',       name:'Rejected',           kind:'closed'},
+  {id:'archive',        name:'Archive',            kind:'closed'},
+  {id:'hired',          name:'Hired',              kind:'won'},
+];
+
+const DEFAULT_SOURCES = [
+  {id:'linkedin', name:'LinkedIn'},
+  {id:'company',  name:'Company website'},
+  {id:'referral', name:'Referral'},
+  {id:'loopcv',   name:'LoopCV'},
+  {id:'browser',  name:'Browser search'},
+];
+
+const SEED = [
+ /* ---- To apply ---- */
+ {id:'d1', title:'Optical Systems Engineer',company:'Heliograph Instruments',location:'Vienna',date:'2026-06-02',status:'saved',source:'browser',
+  history:[{s:'saved',t:'2026-06-02'}]},
+ {id:'d2', title:'Research Scientist, Photonic Sensing',company:'Photon Foundry GmbH',location:'Graz',date:'2026-06-18',status:'saved',source:'linkedin',
+  history:[{s:'saved',t:'2026-06-18'}]},
+ {id:'d3', title:'Lecturer in Physics (part-time)',company:"St. Clement's College Vienna",location:'Vienna',date:'2026-07-04',status:'saved',source:'referral',
+  desc:'Recommended by a colleague from the department.',history:[{s:'saved',t:'2026-07-04'}]},
+ {id:'d4', title:'Technical Writer, Vacuum Systems',company:'Torricelli Vakuumtechnik',location:'Linz',date:'2026-07-22',status:'saved',source:'',
+  history:[{s:'saved',t:'2026-07-22'}]},
+ {id:'d5', title:'R&D Engineer, MEMS Resonators',company:'Nanovolt Systems',location:'Villach',date:'2026-05-11',status:'favorites',source:'linkedin',
+  history:[{s:'favorites',t:'2026-05-11'}]},
+ {id:'d6', title:'Data Scientist (Sensor Analytics)',company:'Schrödinger Analytics',location:'Remote',date:'2026-06-25',status:'favorites',source:'loopcv',
+  history:[{s:'favorites',t:'2026-06-25'}]},
+ {id:'d7', title:'Patent Engineer, Physics',company:'Kelvin & Söhne Patentanwälte',location:'Vienna',date:'2026-07-15',status:'favorites',source:'company',
+  history:[{s:'favorites',t:'2026-07-15'}]},
+ /* ---- In progress ---- */
+ {id:'d8', title:'Postdoc, Optomechanics',company:'Institute for Quantum Widgets',location:'Innsbruck',date:'2026-04-14',status:'applied',source:'company',
+  history:[{s:'saved',t:'2026-04-14'},{s:'applied',t:'2026-04-29'}],
+  contacts:[{text:'Submitted application through the portal.',date:'2026-04-29'},{text:'Auto-reply from HR: review takes 4–6 weeks.',date:'2026-04-30'}]},
+ {id:'d9', title:'Measurement Engineer',company:'Tachyon Dynamics GmbH',location:'Salzburg',date:'2026-05-20',status:'applied',source:'linkedin',
+  history:[{s:'saved',t:'2026-05-20'},{s:'applied',t:'2026-06-03'}],
+  contacts:[{text:'Emailed CV and cover letter to careers@.',date:'2026-06-03'}]},
+ {id:'d10',title:'Simulation Engineer (COMSOL)',company:'Aether Networks',location:'Vienna',date:'2026-06-10',status:'applied',source:'browser',
+  history:[{s:'applied',t:'2026-06-10'}],
+  contacts:[{text:'Applied via website form.',date:'2026-06-10'},{text:'Followed up by phone — “still reviewing”.',date:'2026-07-01'}]},
+ {id:'d11',title:'Science Communicator',company:'Museum of Almost Modern Physics',location:'Vienna',date:'2026-07-08',status:'applied',source:'referral',
+  history:[{s:'saved',t:'2026-07-08'},{s:'applied',t:'2026-07-19'}],
+  contacts:[{text:'Application sent with two writing samples.',date:'2026-07-19'},{text:'Curator confirmed receipt, shortlist in September.',date:'2026-08-04'}]},
+ {id:'d12',title:'Process Engineer, Cleanroom',company:'Gimbal Microfab',location:'Wiener Neustadt',date:'2026-08-05',status:'applied',source:'loopcv',
+  history:[{s:'applied',t:'2026-08-05'}],
+  contacts:[{text:'Applied; asked about shift structure.',date:'2026-08-05'}]},
+ {id:'d13',title:'Unsolicited: Metrology Group',company:'Blue Falcon Optics',location:'Vienna',date:'2026-07-28',status:'cmsx8o49cmpr1m',source:'',
+  history:[{s:'cmsx8o49cmpr1m',t:'2026-07-28'}],
+  contacts:[{text:'Cold email to the group leader with CV.',date:'2026-07-28'},{text:'CV forwarded to the metrology team.',date:'2026-08-06'}]},
+ {id:'d14',title:'General Inquiry, Teaching',company:'Alpenland University of Applied Sciences',location:'Klagenfurt',date:'2026-08-11',status:'cmsx8o49cmpr1m',source:'company',
+  history:[{s:'cmsx8o49cmpr1m',t:'2026-08-11'}],
+  contacts:[{text:'Wrote to the dean about adjunct lecturing.',date:'2026-08-11'}]},
+ {id:'d15',title:'Unsolicited: Instrumentation R&D',company:'Cryostat Coffee Co.',location:'Bratislava',date:'2026-08-14',status:'cmsx8o49cmpr1m',source:'referral',
+  history:[{s:'cmsx8o49cmpr1m',t:'2026-08-14'}],
+  contacts:[{text:'Met their engineer at a meetup; sent CV the next morning.',date:'2026-08-15'}]},
+ {id:'d16',title:'Optical Metrology Engineer',company:'Interfero Optics AG',location:'Vienna',date:'2026-06-20',status:'interview',source:'linkedin',
+  history:[{s:'saved',t:'2026-06-20'},{s:'applied',t:'2026-07-01'},{s:'interview',t:'2026-07-22'}],
+  contacts:[{text:'Invited to a video interview.',date:'2026-07-18'},{text:'45-min call with the team lead — went well.',date:'2026-07-22'},{text:'They asked for two references.',date:'2026-08-02'}]},
+ {id:'d17',title:'Senior Physicist, Sensors',company:'Kármán Line Aerospace',location:'Graz',date:'2026-07-02',status:'interview',source:'company',
+  history:[{s:'applied',t:'2026-07-02'},{s:'interview',t:'2026-08-10'}],
+  contacts:[{text:'HR screening call, 20 minutes.',date:'2026-07-24'},{text:'Technical interview scheduled on site.',date:'2026-08-10'}]},
+ {id:'d18',title:'Development Engineer, Photonics',company:'Lumen & Löffel GmbH',location:'Vienna',date:'2026-05-28',status:'offer',source:'referral',
+  history:[{s:'saved',t:'2026-05-28'},{s:'applied',t:'2026-06-09'},{s:'interview',t:'2026-07-06'},{s:'offer',t:'2026-08-12'}],
+  contacts:[{text:'On-site interview and lab tour.',date:'2026-07-06'},{text:'Offer received — reviewing the contract.',date:'2026-08-12'}]},
+ /* ---- Decided ---- */
+ {id:'d19',title:'Night-shift Fab Technician',company:'Perpetual Motion Industries',location:'Linz',date:'2026-04-08',status:'withdrew',source:'browser',
+  history:[{s:'applied',t:'2026-04-08'},{s:'withdrew',t:'2026-05-02'}],
+  contacts:[{text:'Withdrew — the schedule was impossible with family.',date:'2026-05-02'}]},
+ {id:'d20',title:'Quantum Software Engineer',company:'Qubit & Run Computing',location:'Remote',date:'2026-03-12',status:'rejected',source:'linkedin',
+  history:[{s:'applied',t:'2026-03-12'},{s:'rejected',t:'2026-04-15'}],
+  contacts:[{text:'Rejection email — “strong profile, not an exact fit”.',date:'2026-04-15'}]},
+ {id:'d21',title:'Staff Scientist',company:'Bergwald Research Institute',location:'Innsbruck',date:'2026-03-30',status:'rejected',source:'company',
+  history:[{s:'applied',t:'2026-03-30'},{s:'rejected',t:'2026-05-06'}]},
+ {id:'d22',title:'Optics Designer',company:'Fresnel Brothers',location:'Vienna',date:'2026-05-15',status:'rejected',source:'loopcv',
+  history:[{s:'applied',t:'2026-05-15'},{s:'rejected',t:'2026-06-20'}],
+  contacts:[{text:'Position was filled internally.',date:'2026-06-20'}]},
+ {id:'d23',title:'Laser Safety Officer',company:'Coherent Chaos Labs',location:'Vienna',date:'2026-06-01',status:'rejected',source:'browser',
+  history:[{s:'applied',t:'2026-06-01'},{s:'rejected',t:'2026-07-10'}]},
+ {id:'d24',title:'General Inquiry',company:'Doppler Logistics',location:'Bratislava',date:'2026-02-20',status:'archive',source:'',
+  history:[{s:'cmsx8o49cmpr1m',t:'2026-02-20'},{s:'archive',t:'2026-04-01'}],
+  contacts:[{text:'Two emails, no answer — shelved.',date:'2026-04-01'}]},
+ {id:'d25',title:'Lecturer, Physics & Instrumentation',company:'Vindobona Technical College',location:'Vienna',date:'2026-04-22',status:'hired',source:'referral',
+  history:[{s:'saved',t:'2026-04-22'},{s:'applied',t:'2026-05-05'},{s:'interview',t:'2026-06-02'},{s:'offer',t:'2026-06-30'},{s:'hired',t:'2026-07-20'}],
+  contacts:[{text:'Teaching demo scheduled.',date:'2026-05-28'},{text:'Offer accepted 🎉',date:'2026-07-01'},{text:'Contract signed.',date:'2026-07-20'}]},
+].map(j=>({url:'', location:'', desc:'', ...j}));
+
+/* ---------- State ---------- */
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+function migrateJob(j){
+  if(!Array.isArray(j.contacts)) j.contacts = [];
+  if(typeof j.source !== 'string') j.source = '';
+  delete j.badge;                                  /* tags retired in favour of sources */
+  if(!Array.isArray(j.history) || !j.history.length){
+    j.history = [{s:j.status, t:j.date || todayISO()}];
+  }
+  return j;
+}
+function loadJobs(){
+  try{
+    const raw = localStorage.getItem(JOBS_KEY);
+    if(raw){ const d = JSON.parse(raw); if(Array.isArray(d)) return d.map(migrateJob); }
+  }catch(e){}
+  return SEED.map(j=>migrateJob({...j}));
+}
+function loadColumns(){
+  try{
+    const raw = localStorage.getItem(COLS_KEY);
+    if(raw){ const d = JSON.parse(raw); if(Array.isArray(d) && d.length) return d.map(c=>({kind:'pipeline', ...c})); }
+  }catch(e){}
+  return DEFAULT_COLUMNS.map(c=>({...c}));
+}
+function loadSort(){
+  try{ return localStorage.getItem(SORT_KEY) || 'manual'; }catch(e){ return 'manual'; }
+}
+function loadSources(){
+  try{
+    const raw = localStorage.getItem(SRC_KEY);
+    if(raw){ const d = JSON.parse(raw); if(Array.isArray(d)) return d.filter(x=>x && x.id && x.name); }
+  }catch(e){}
+  return DEFAULT_SOURCES.map(x=>({...x}));
+}
+function saveSources(){ try{ localStorage.setItem(SRC_KEY, JSON.stringify(sources)); }catch(e){} }
+function sourceName(id){ const x = sources.find(v=>v.id===id); return x ? x.name : ''; }
+
+let jobs     = loadJobs();
+let columns  = loadColumns();
+let sortMode = loadSort();
+let sources  = loadSources();
+let editingId = null;
+let pendingDeleteCol = null;
+let focusColId = null;
+let draftContacts = [];
+
+function saveJobs(){ try{ localStorage.setItem(JOBS_KEY, JSON.stringify(jobs)); }catch(e){} }
+function saveCols(){ try{ localStorage.setItem(COLS_KEY, JSON.stringify(columns)); }catch(e){} }
+function uid(p){ return (p||'j')+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function esc(s){ return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtDate(iso){
+  if(!iso) return '';
+  const d = new Date(iso+'T00:00:00');
+  if(isNaN(d)) return iso;
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+/* Central place for status changes so the timeline stays true. */
+function setStatus(job, newStatus, when){
+  if(job.status === newStatus) return;
+  job.status = newStatus;
+  if(!Array.isArray(job.history)) job.history = [];
+  job.history.push({s:newStatus, t:when || todayISO()});
+}
+/* A card pointing at a category that no longer exists lands in the first one. */
+function normalize(){
+  if(!columns.length){ columns = DEFAULT_COLUMNS.map(c=>({...c})); saveCols(); }
+  const ids = new Set(columns.map(c=>c.id));
+  let moved = false;
+  jobs.forEach(j=>{ if(!ids.has(j.status)){ setStatus(j, columns[0].id); moved = true; } });
+  if(moved) saveJobs();
+}
+
+/* ---------- Sorting ---------- */
+function setSort(v){
+  sortMode = v;
+  try{ localStorage.setItem(SORT_KEY, v); }catch(e){}
+  renderBoard();
+}
+function blankLast(a,b){ if(!a && !b) return 0; if(!a) return 1; if(!b) return -1; return null; }
+function cmpDate(dir){
+  return (a,b)=>{
+    const blank = blankLast(a.date,b.date); if(blank!==null) return blank;
+    const r = a.date.localeCompare(b.date);
+    if(r) return dir==='asc' ? r : -r;
+    return (a.company||'').localeCompare(b.company||'', undefined, {sensitivity:'base'});
+  };
+}
+function cmpCompany(dir){
+  return (a,b)=>{
+    const blank = blankLast(a.company,b.company); if(blank!==null) return blank;
+    const r = a.company.localeCompare(b.company, undefined, {sensitivity:'base'});
+    if(r) return dir==='asc' ? r : -r;
+    return (b.date||'').localeCompare(a.date||'');
+  };
+}
+function columnJobs(colId){
+  const list = jobs.filter(j=>j.status===colId);
+  if(sortMode==='date-desc')    return list.sort(cmpDate('desc'));
+  if(sortMode==='date-asc')     return list.sort(cmpDate('asc'));
+  if(sortMode==='company-asc')  return list.sort(cmpCompany('asc'));
+  if(sortMode==='company-desc') return list.sort(cmpCompany('desc'));
+  return list; /* manual: the order cards were dragged into */
+}
+
+/* ---------- Progress sidebar ---------- */
+function renderSide(){
+  const side = document.getElementById('side');
+  const colKind = {};
+  columns.forEach(c=>{ colKind[c.id] = c.kind; });
+  const byGroup = {backlog:0, active:0, decided:0};
+  let won = 0;
+  jobs.forEach(j=>{
+    const g = kindGroup(colKind[j.status]);
+    if(g) byGroup[g]++;
+    if(colKind[j.status]==='won') won++;
+  });
+  /* pace: first entry of each card into the In-progress group, per week */
+  const entries = [];
+  jobs.forEach(j=>{
+    const hs = (j.history||[]).filter(h=>h.t).sort((a,b)=>a.t.localeCompare(b.t));
+    for(const h of hs){
+      if(kindGroup(colKind[h.s])==='active' || ['pipeline'].includes(colKind[h.s])){ entries.push(h.t); break; }
+    }
+  });
+  let rateTxt = '';
+  if(entries.length){
+    entries.sort();
+    const days = Math.max(1, (new Date(todayISO()+'T00:00:00') - new Date(entries[0]+'T00:00:00')) / 864e5);
+    const rate = entries.length / Math.max(1, days/7);
+    rateTxt = '<div class="rate">≈ '+(Math.round(rate*10)/10)+' added / week</div>';
+  }
+  let html = '<h4>Progress</h4>';
+  GROUPS.forEach(g=>{
+    html += '<div class="gstat g-'+g.id+'">' +
+      '<div class="n">'+byGroup[g.id]+'</div>' +
+      '<div class="l">'+g.label+'</div>' +
+      (g.id==='active' ? rateTxt : '') +
+      (g.id==='decided' && won ? '<div class="mini">including '+won+' hired 🏆</div>' : '') +
+    '</div>';
+  });
+  html += '<div id="sideChart"><h4>Over time</h4>' + timelineSvg(colKind) +
+    '<div class="legend">' + GROUPS.map(g=>'<span><i style="background:'+g.cssVar+'"></i>'+g.label+'</span>').join('') + '</div></div>';
+  html += '<div id="sideChart2"><h4>Found via</h4>' + srcChartSvg() + '</div>';
+  side.innerHTML = html;
+}
+/* Horizontal bars: how many jobs came from each source. */
+const SRC_PALETTE = ['#0E9594','#7C4DBC','#C2417F','#4C9A52','#D95D39','#3E7CB1','#B98A1E','#5E548E'];
+function srcColor(id){
+  if(!id) return '#B7BFCC';
+  const i = sources.findIndex(x=>x.id===id);
+  return SRC_PALETTE[(i<0?0:i) % SRC_PALETTE.length];
+}
+function srcChartSvg(){
+  const counts = [];
+  sources.forEach(x=>{
+    const n = jobs.filter(j=>j.source===x.id).length;
+    if(n) counts.push({id:x.id, name:x.name, n:n});
+  });
+  const und = jobs.filter(j=>!j.source || !sources.some(x=>x.id===j.source)).length;
+  if(und) counts.push({id:'', name:'Not defined', n:und});
+  if(!counts.length) return '<p class="ch-empty">No jobs yet.</p>';
+  counts.sort((a,b)=> b.n - a.n || a.name.localeCompare(b.name));
+  const W=230, rowH=34, padR=26, barH=9;
+  const maxN = Math.max(...counts.map(c=>c.n));
+  let svg = '';
+  counts.forEach((c,i)=>{
+    const y = i*rowH;
+    const w = Math.max(4, (W-padR) * c.n / maxN);
+    const col = srcColor(c.id);
+    svg += '<text x="0" y="'+(y+12)+'" font-size="11.5" font-weight="600" fill="var(--ink)">'+esc(c.name)+'</text>';
+    svg += '<rect x="0" y="'+(y+18)+'" width="'+w+'" height="'+barH+'" rx="4.5" fill="'+col+'" opacity="'+(c.id?1:.55)+'"/>';
+    svg += '<text x="'+(w+6)+'" y="'+(y+26)+'" font-size="11.5" font-weight="700" fill="'+col+'">'+c.n+'</text>';
+  });
+  return '<svg viewBox="0 0 '+W+' '+(counts.length*rowH)+'" width="100%" role="img" aria-label="Jobs per source">'+svg+'</svg>';
+}
+/* Line chart: cards in each group as of each day something changed. */
+function timelineSvg(colKind){
+  const dates = new Set();
+  jobs.forEach(j=>(j.history||[]).forEach(h=>{ if(h.t) dates.add(h.t); }));
+  if(!dates.size) return '<p class="ch-empty">No history yet — moves are recorded from now on.</p>';
+  dates.add(todayISO());
+  const ds = Array.from(dates).sort();
+  const t0 = new Date(ds[0]+'T00:00:00').getTime();
+  const t1 = new Date(ds[ds.length-1]+'T00:00:00').getTime();
+  const span = Math.max(1, t1 - t0);
+
+  /* status of a job on day d = last history entry with t <= d */
+  const series = GROUPS.map(()=>[]);
+  ds.forEach(d=>{
+    const counts = {backlog:0, active:0, decided:0};
+    jobs.forEach(j=>{
+      const hs = (j.history||[]).filter(h=>h.t && h.t<=d).sort((a,b)=>a.t.localeCompare(b.t));
+      if(!hs.length) return;                    /* card didn't exist yet */
+      const g = kindGroup(colKind[hs[hs.length-1].s]);
+      if(g) counts[g]++;
+    });
+    GROUPS.forEach((g,i)=>series[i].push(counts[g.id]));
+  });
+
+  const W=230, H=150, padL=8, padR=34, padT=10, padB=24;
+  const maxY = Math.max(1, ...series.flat());
+  const X = d => padL + (W-padL-padR) * (new Date(d+'T00:00:00').getTime()-t0) / span;
+  const Y = v => H-padB - (H-padB-padT) * v / maxY;
+  let svg = '';
+  svg += '<line x1="'+padL+'" y1="'+Y(maxY)+'" x2="'+(W-padR)+'" y2="'+Y(maxY)+'" stroke="var(--line)" stroke-dasharray="3 3"/>';
+  GROUPS.forEach((g,i)=>{
+    let pts;
+    if(ds.length===1){
+      pts = padL+','+Y(series[i][0])+' '+(W-padR)+','+Y(series[i][0]);
+    } else {
+      pts = ds.map((d,k)=>X(d)+','+Y(series[i][k])).join(' ');
+    }
+    svg += '<polyline points="'+pts+'" fill="none" stroke="'+g.cssVar+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+    const lastV = series[i][series[i].length-1];
+    const ly = Y(lastV);
+    svg += '<circle cx="'+(W-padR)+'" cy="'+ly+'" r="3" fill="'+g.cssVar+'"/>';
+    svg += '<text x="'+(W-padR+6)+'" y="'+(ly+4)+'" font-size="12" font-weight="700" fill="'+g.cssVar+'">'+lastV+'</text>';
+  });
+  const fmtTick = d => new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short'}) + " '" + d.slice(2,4);
+  svg += '<text x="'+padL+'" y="'+(H-6)+'" font-size="10.5" fill="var(--muted)">'+fmtTick(ds[0])+'</text>';
+  svg += '<text x="'+(W-padR)+'" y="'+(H-6)+'" text-anchor="end" font-size="10.5" fill="var(--muted)">'+fmtTick(ds[ds.length-1])+'</text>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Cards per group over time">'+svg+'</svg>';
+}
+
+/* ---------- Board ---------- */
+function renderBoard(){
+  normalize();
+  document.getElementById('sortSel').value = sortMode;
+  refreshStatusOptions();
+  renderSide();
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  let prevGroup = null;
+  let wrap = null, gcols = null;
+  for(const col of columns){
+    const group = kindGroup(col.kind) || 'decided';
+    if(group !== prevGroup){
+      if(prevGroup !== null){
+        const div = document.createElement('div');
+        div.className = 'gdivider g-' + group;
+        board.appendChild(div);
+      }
+      const gDef = GROUPS.find(g=>g.id===group);
+      wrap = document.createElement('div');
+      wrap.className = 'ggroup g-' + group;
+      const lbl = document.createElement('div');
+      lbl.className = 'glabel';
+      lbl.textContent = gDef ? gDef.label : '';
+      wrap.appendChild(lbl);
+      gcols = document.createElement('div');
+      gcols.className = 'gcols';
+      wrap.appendChild(gcols);
+      board.appendChild(wrap);
+    }
+    prevGroup = group;
+
+    const list = columnJobs(col.id);
+    const el = document.createElement('div');
+    el.className = 'col' + (col.kind==='won' ? ' won' : '');
+    el.dataset.col = col.id;
+    el.innerHTML =
+      '<div class="col-head" title="Drag to reorder · double-click the name to rename">' +
+        '<h2></h2>' +
+        '<span class="count">' + list.length + '</span>' +
+        '<button class="add-mini" title="Add job here">＋</button>' +
+      '</div>' +
+      '<div class="col-body"></div>';
+
+    const head = el.querySelector('.col-head');
+    const h2   = el.querySelector('h2');
+    h2.textContent = col.name;
+    h2.addEventListener('dblclick',()=>startRename(head,h2,col.id));
+    el.querySelector('.add-mini').addEventListener('click',()=>openModal(null,col.id));
+
+    head.draggable = true;
+    head.addEventListener('dragstart',e=>{
+      e.dataTransfer.setData('application/x-col', col.id);
+      e.dataTransfer.effectAllowed = 'move';
+      el.classList.add('col-dragging');
+    });
+    head.addEventListener('dragend',()=>{ el.classList.remove('col-dragging'); clearColMarks(); });
+
+    const body = el.querySelector('.col-body');
+    body.dataset.col = col.id;
+    if(!list.length){
+      const hint = document.createElement('div');
+      hint.className = 'empty-hint';
+      hint.textContent = col.kind==='won' ? 'Reserved for the big move 🎉' : 'Drop cards here';
+      body.appendChild(hint);
+    }
+    for(const j of list) body.appendChild(cardEl(j));
+
+    body.addEventListener('dragover',e=>{
+      if(e.dataTransfer.types.includes('application/x-col')) return;
+      e.preventDefault(); body.classList.add('dragover');
+    });
+    body.addEventListener('dragleave',()=>body.classList.remove('dragover'));
+    body.addEventListener('drop',e=>{
+      if(e.dataTransfer.types.includes('application/x-col')) return;
+      e.preventDefault(); body.classList.remove('dragover');
+      dropCard(e, col.id, body);
+    });
+    gcols.appendChild(el);
+  }
+}
+function cardEl(j){
+  const c = document.createElement('div');
+  c.className = 'card'; c.draggable = true; c.dataset.id = j.id;
+  const srcNm = sourceName(j.source);
+  const badge = srcNm ? '<span class="src">' + esc(srcNm) + '</span>' : '';
+  const link  = j.url ? '<a class="linkico" href="' + esc(j.url) + '" target="_blank" rel="noopener" title="Open job posting" onclick="event.stopPropagation()">⧉</a>' : '';
+  const nCon  = (j.contacts||[]).length;
+  const chip  = nCon ? '<span class="chip" title="'+nCon+(nCon===1?' contact':' contacts')+' logged">💬 '+nCon+'</span>' : '';
+  c.innerHTML = link +
+    '<h3>' + (esc(j.title) || '(untitled)') + '</h3>' +
+    '<div class="co">' + esc(j.company) + '</div>' +
+    '<div class="meta"><span class="date">' + fmtDate(j.date) + '</span>' + chip + badge + '</div>';
+  c.addEventListener('click',()=>openModal(j.id));
+  c.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain', j.id); c.classList.add('dragging'); });
+  c.addEventListener('dragend',()=>c.classList.remove('dragging'));
+  return c;
+}
+
+/* ---------- Card drag & drop ---------- */
+function cardAfterPoint(container, y){
+  const els = Array.from(container.querySelectorAll('.card:not(.dragging)'));
+  return els.reduce((closest, child)=>{
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height/2;
+    if(offset < 0 && offset > closest.offset) return {offset:offset, element:child};
+    return closest;
+  }, {offset:Number.NEGATIVE_INFINITY, element:null}).element;
+}
+function dropCard(e, colId, body){
+  const id = e.dataTransfer.getData('text/plain');
+  const job = jobs.find(x=>x.id===id);
+  if(!job) return;
+  setStatus(job, colId);
+  const after = cardAfterPoint(body, e.clientY);
+  jobs = jobs.filter(x=>x.id!==id);
+  let idx = -1;
+  if(after && after.dataset.id !== id) idx = jobs.findIndex(x=>x.id===after.dataset.id);
+  if(idx < 0){
+    const last = jobs.slice().reverse().find(x=>x.status===colId);
+    idx = last ? jobs.indexOf(last)+1 : jobs.length;
+  }
+  jobs.splice(idx, 0, job);
+  saveJobs(); renderBoard();
+}
+
+/* ---------- Category drag & drop on the board ---------- */
+const boardEl = document.getElementById('board');
+function clearColMarks(){
+  boardEl.querySelectorAll('.col').forEach(c=>c.classList.remove('col-drop-left','col-drop-right'));
+}
+function colAfterPoint(x){
+  const els = Array.from(boardEl.querySelectorAll('.col:not(.col-dragging)'));
+  return els.reduce((closest, child)=>{
+    const box = child.getBoundingClientRect();
+    const offset = x - box.left - box.width/2;
+    if(offset < 0 && offset > closest.offset) return {offset:offset, element:child};
+    return closest;
+  }, {offset:Number.NEGATIVE_INFINITY, element:null}).element;
+}
+boardEl.addEventListener('dragover',e=>{
+  if(!e.dataTransfer.types.includes('application/x-col')) return;
+  e.preventDefault();
+  clearColMarks();
+  const after = colAfterPoint(e.clientX);
+  if(after) after.classList.add('col-drop-left');
+  else {
+    const rest = Array.from(boardEl.querySelectorAll('.col:not(.col-dragging)'));
+    if(rest.length) rest[rest.length-1].classList.add('col-drop-right');
+  }
+});
+boardEl.addEventListener('dragleave',e=>{ if(e.target===boardEl) clearColMarks(); });
+boardEl.addEventListener('drop',e=>{
+  if(!e.dataTransfer.types.includes('application/x-col')) return;
+  e.preventDefault(); clearColMarks();
+  const id = e.dataTransfer.getData('application/x-col');
+  const from = columns.findIndex(c=>c.id===id);
+  if(from < 0) return;
+  const col = columns.splice(from,1)[0];
+  const after = colAfterPoint(e.clientX);
+  let idx = after ? columns.findIndex(c=>c.id===after.dataset.col) : -1;
+  if(idx < 0) idx = columns.length;
+  columns.splice(idx, 0, col);
+  saveCols(); renderBoard();
+});
+
+/* ---------- Rename a category in place ---------- */
+function startRename(head, h2, id){
+  const col = columns.find(c=>c.id===id);
+  if(!col) return;
+  head.draggable = false;
+  const inp = document.createElement('input');
+  inp.className = 'rename-input';
+  inp.value = col.name;
+  inp.draggable = false;
+  h2.replaceWith(inp);
+  inp.focus(); inp.select();
+  let finished = false;
+  const finish = commit =>{
+    if(finished) return;
+    finished = true;
+    if(commit){ const v = inp.value.trim(); if(v){ col.name = v; saveCols(); } }
+    renderBoard();
+    if(document.getElementById('colModal').open) renderColumnList();
+  };
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){ e.preventDefault(); finish(true); }
+    if(e.key==='Escape'){ e.preventDefault(); finish(false); }
+  });
+  inp.addEventListener('blur',()=>finish(true));
+}
+
+/* ---------- Category editor ---------- */
+function openColumns(){
+  pendingDeleteCol = null;
+  renderColumnList();
+  document.getElementById('colModal').showModal();
+}
+function renderColumnList(){
+  const wrap = document.getElementById('colList');
+  wrap.innerHTML = '';
+  columns.forEach((col,i)=>{
+    const n = jobs.filter(j=>j.status===col.id).length;
+    const row = document.createElement('div');
+    row.className = 'col-row';
+    row.innerHTML =
+      '<input value="' + esc(col.name) + '" aria-label="Category name" data-role="name">' +
+      '<select aria-label="Stage" data-role="kind">' +
+        KINDS.map(k=>'<option value="'+k.id+'"'+(k.id===col.kind?' selected':'')+'>'+k.label+'</option>').join('') +
+      '</select>' +
+      '<div class="row-btns">' +
+        '<span class="row-count">' + n + (n===1?' card':' cards') + '</span>' +
+        '<button class="iconbtn" data-role="up" title="Move left"' + (i===0?' disabled':'') + '>↑</button>' +
+        '<button class="iconbtn" data-role="down" title="Move right"' + (i===columns.length-1?' disabled':'') + '>↓</button>' +
+        '<button class="iconbtn del" data-role="del" title="Delete category"' + (columns.length<2?' disabled':'') + '>🗑</button>' +
+      '</div>';
+
+    row.querySelector('[data-role=name]').addEventListener('input',e=>{
+      col.name = e.target.value; saveCols(); renderBoard();
+    });
+    row.querySelector('[data-role=kind]').addEventListener('change',e=>{
+      col.kind = e.target.value; saveCols(); renderBoard();
+    });
+    row.querySelector('[data-role=up]').addEventListener('click',()=>moveColumn(i,-1));
+    row.querySelector('[data-role=down]').addEventListener('click',()=>moveColumn(i,1));
+    row.querySelector('[data-role=del]').addEventListener('click',()=>{
+      if(n===0) deleteColumn(col.id, null);
+      else { pendingDeleteCol = col.id; renderColumnList(); }
+    });
+
+    if(pendingDeleteCol === col.id){
+      const others = columns.filter(c=>c.id!==col.id);
+      const box = document.createElement('div');
+      box.className = 'confirm';
+      box.innerHTML =
+        '<p>Delete “' + esc(col.name) + '”. Where should its ' + n + (n===1?' card':' cards') + ' go?</p>' +
+        '<select data-role="target">' + others.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('') + '</select>' +
+        '<button class="btn btn-ghost" data-role="cancel">Keep it</button>' +
+        '<button class="btn btn-danger" data-role="go">Move cards &amp; delete</button>';
+      box.querySelector('[data-role=cancel]').addEventListener('click',()=>{ pendingDeleteCol = null; renderColumnList(); });
+      box.querySelector('[data-role=go]').addEventListener('click',()=>{
+        deleteColumn(col.id, box.querySelector('[data-role=target]').value);
+      });
+      row.appendChild(box);
+    }
+    wrap.appendChild(row);
+  });
+  if(focusColId){
+    const idx = columns.findIndex(c=>c.id===focusColId);
+    const row = wrap.children[idx];
+    const input = row && row.querySelector('[data-role=name]');
+    if(input){ input.focus(); input.select(); }
+    focusColId = null;
+  }
+}
+function moveColumn(i, dir){
+  const j = i + dir;
+  if(j < 0 || j >= columns.length) return;
+  const tmp = columns[i]; columns[i] = columns[j]; columns[j] = tmp;
+  saveCols(); renderBoard(); renderColumnList();
+}
+function addColumn(){
+  const col = {id:uid('c'), name:'New category', kind:'pipeline'};
+  columns.push(col);
+  focusColId = col.id;
+  saveCols(); renderBoard(); renderColumnList();
+  const wrap = document.getElementById('colList');
+  wrap.scrollTop = wrap.scrollHeight;
+}
+function deleteColumn(id, targetId){
+  if(columns.length < 2) return;
+  if(targetId) jobs.forEach(j=>{ if(j.status===id) setStatus(j, targetId); });
+  columns = columns.filter(c=>c.id!==id);
+  pendingDeleteCol = null;
+  saveCols(); saveJobs(); renderBoard(); renderColumnList();
+}
+
+/* ---------- Job modal ---------- */
+const modal = document.getElementById('jobModal');
+function refreshStatusOptions(){
+  document.getElementById('fStatus').innerHTML =
+    columns.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('');
+}
+function refreshSourceOptions(){
+  document.getElementById('fSource').innerHTML =
+    '<option value="">Not defined</option>' +
+    sources.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');
+}
+document.getElementById('fUrl').addEventListener('input', syncUrlBtn);
+function syncUrlBtn(){
+  const v = document.getElementById('fUrl').value.trim();
+  const a = document.getElementById('fUrlOpen');
+  a.href = v || '#'; a.style.opacity = v ? 1 : .35; a.style.pointerEvents = v ? 'auto' : 'none';
+}
+function openModal(id, defaultCol){
+  editingId = id;
+  refreshStatusOptions();
+  refreshSourceOptions();
+  const j = id ? jobs.find(x=>x.id===id)
+               : {title:'',company:'',location:'',url:'',desc:'',source:'',date:todayISO(),status:defaultCol||columns[0].id,contacts:[]};
+  if(!j) return;
+  document.getElementById('modalTitle').textContent = id ? 'Edit Job' : 'Add Job';
+  document.getElementById('btnRemove').style.display = id ? 'inline-flex' : 'none';
+  fTitle.value = j.title; fCompany.value = j.company; fLocation.value = j.location || '';
+  fUrl.value = j.url || ''; fDesc.value = j.desc || '';
+  fSource.value = sources.some(x=>x.id===j.source) ? j.source : '';
+  fDate.value = j.date || ''; fStatus.value = j.status;
+  draftContacts = (j.contacts||[]).map(c=>({text:c.text||'', date:c.date||todayISO()}));
+  renderContacts();
+  syncUrlBtn();
+  modal.showModal();
+}
+function closeModal(){ modal.close(); }
+function saveJob(){
+  const data = {title:fTitle.value.trim(), company:fCompany.value.trim(), location:fLocation.value.trim(),
+    url:fUrl.value.trim(), desc:fDesc.value, source:fSource.value, date:fDate.value,
+    contacts:draftContacts.filter(c=>c.text.trim()).map(c=>({text:c.text.trim(), date:c.date||todayISO()}))};
+  const newStatus = fStatus.value;
+  if(editingId){
+    const j = jobs.find(x=>x.id===editingId);
+    Object.assign(j, data);
+    setStatus(j, newStatus);
+  } else {
+    const j = Object.assign({id:uid(), status:newStatus}, data);
+    j.history = [{s:newStatus, t:j.date || todayISO()}];
+    jobs.push(j);
+  }
+  saveJobs(); modal.close(); renderBoard();
+}
+function removeJob(){
+  if(!editingId) return;
+  if(confirm('Remove this job from the board?')){
+    jobs = jobs.filter(x=>x.id!==editingId);
+    saveJobs(); modal.close(); renderBoard();
+  }
+}
+
+/* ---------- Contact history (inside the job modal) ---------- */
+function renderContacts(focusLast){
+  const list = document.getElementById('chList');
+  document.getElementById('chEmpty').style.display = draftContacts.length ? 'none' : 'block';
+  list.innerHTML = '';
+  draftContacts.forEach((c,i)=>{
+    const row = document.createElement('div');
+    row.className = 'centry';
+    row.innerHTML =
+      '<textarea placeholder="What happened? e.g. Emailed HR, CV forwarded to the group…"></textarea>' +
+      '<div class="crow">' +
+        '<input type="date">' +
+        '<button class="cdel" title="Delete this entry">✕</button>' +
+      '</div>';
+    const ta = row.querySelector('textarea');
+    ta.value = c.text;
+    ta.addEventListener('input',e=>{ c.text = e.target.value; });
+    const di = row.querySelector('input[type=date]');
+    di.value = c.date;
+    di.addEventListener('change',e=>{ c.date = e.target.value; });
+    row.querySelector('.cdel').addEventListener('click',()=>{
+      draftContacts.splice(i,1); renderContacts();
+    });
+    list.appendChild(row);
+  });
+  if(focusLast && list.lastElementChild){
+    const ta = list.lastElementChild.querySelector('textarea');
+    ta.focus();
+    list.lastElementChild.scrollIntoView({block:'nearest'});
+  }
+}
+function addContact(){
+  draftContacts.push({text:'', date:todayISO()});
+  renderContacts(true);
+}
+
+/* ---------- Clear board ---------- */
+function clearBoard(withExport){
+  if(withExport) exportJSON();
+  jobs = [];
+  columns = DEFAULT_COLUMNS.map(c=>({...c}));
+  sources = DEFAULT_SOURCES.map(x=>({...x}));
+  sortMode = 'manual';
+  /* write empties so a refresh stays empty instead of re-seeding the demo */
+  saveJobs(); saveCols(); saveSources();
+  try{ localStorage.setItem(SORT_KEY, sortMode); }catch(e){}
+  document.getElementById('clearModal').close();
+  renderBoard();
+}
+
+/* ---------- Sources editor ---------- */
+let focusSrcId = null;
+function openSources(){
+  renderSourceList();
+  document.getElementById('srcModal').showModal();
+}
+function closeSources(){
+  sources = sources.filter(x=>x.name.trim());
+  sources.forEach(x=>{ x.name = x.name.trim(); });
+  saveSources();
+  document.getElementById('srcModal').close();
+  refreshSourceOptions();
+  if(!sources.some(x=>x.id===fSource.value)) fSource.value = '';
+  renderBoard();
+}
+function renderSourceList(){
+  const wrap = document.getElementById('srcList');
+  wrap.innerHTML = '';
+  sources.forEach((x,i)=>{
+    const n = jobs.filter(j=>j.source===x.id).length;
+    const row = document.createElement('div');
+    row.className = 'src-row';
+    row.innerHTML =
+      '<input value="'+esc(x.name)+'" aria-label="Source name">' +
+      '<div class="row-btns">' +
+        '<span class="row-count">'+n+(n===1?' job':' jobs')+'</span>' +
+        '<button class="iconbtn del" title="Delete source">🗑</button>' +
+      '</div>';
+    row.querySelector('input').addEventListener('input',e=>{ x.name = e.target.value; saveSources(); renderBoard(); });
+    row.querySelector('.del').addEventListener('click',()=>{
+      jobs.forEach(j=>{ if(j.source===x.id) j.source=''; });
+      sources.splice(i,1);
+      saveSources(); saveJobs(); renderSourceList(); refreshSourceOptions(); renderBoard();
+    });
+    wrap.appendChild(row);
+  });
+  if(focusSrcId){
+    const idx = sources.findIndex(x=>x.id===focusSrcId);
+    const row = wrap.children[idx];
+    const input = row && row.querySelector('input');
+    if(input){ input.focus(); input.select(); }
+    focusSrcId = null;
+  }
+}
+function addSource(){
+  const x = {id:uid('s'), name:'New source'};
+  sources.push(x);
+  focusSrcId = x.id;
+  saveSources(); renderSourceList(); refreshSourceOptions();
+  const wrap = document.getElementById('srcList');
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+/* ---------- Export / Import ---------- */
+function exportJSON(){
+  const payload = {version:4, exported:new Date().toISOString(), columns:columns, jobs:jobs, sources:sources};
+  const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'job-board-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importJSON(ev){
+  const f = ev.target.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    try{
+      const data = JSON.parse(r.result);
+      if(Array.isArray(data)){
+        jobs = data.map(migrateJob);                  /* oldest export: cards only */
+      } else if(data && Array.isArray(data.jobs)){
+        jobs = data.jobs.map(migrateJob);             /* v2/v3 export: cards + categories (+ history/contacts) */
+        if(Array.isArray(data.columns) && data.columns.length){
+          columns = data.columns.map(c=>Object.assign({kind:'pipeline'}, c));
+        }
+        if(Array.isArray(data.sources)){
+          sources = data.sources.filter(x=>x && x.id && x.name);
+          saveSources();
+        }
+      } else {
+        alert('That file does not look like a board export.');
+        return;
+      }
+      saveJobs(); saveCols(); renderBoard();
+    }catch(e){
+      alert('Could not read that file: '+e.message);
+    }
+  };
+  r.readAsText(f);
+  ev.target.value = '';
+}
+
+renderBoard();
+</script>
+</body>
+</html>
