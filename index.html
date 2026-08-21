@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robert G. West — Experimental Physicist</title>
+<meta name="description" content="Experimental physicist working in optics, nanomechanical sensing, and measurement automation. Vienna and Bratislava.">
+
+<!-- Computer Modern (the LaTeX serif). If this CDN ever fails, the page falls
+     back to IBM Plex Serif, then Georgia — nothing breaks. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/computer-modern@0.1.2/cmu-serif.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#F1F3F0;
+    --ink:#14181A;
+    --muted:#5E6763;
+    --faint:#9AA3A0;
+    --rule:#D2D8D2;
+    --accent:#146A66;
+    --accent-soft:rgba(20,106,102,.12);
+
+    /* Local names first, so your own LaTeX fonts are used if installed */
+    --serif:"CMU Serif","Computer Modern Serif","Latin Modern Roman","IBM Plex Serif",Georgia,serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:18px;
+    line-height:1.62;
+  }
+
+  .wrap{max-width:860px;margin:0 auto;padding:0 28px;}
+
+  .label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 18px;
+  }
+
+  /* ---------- hero ---------- */
+  header{padding:76px 0 0;}
+  h1{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(2.5rem,7vw,4.1rem);
+    line-height:1.04;
+    letter-spacing:-.01em;
+    margin:0 0 28px;
+  }
+  h1 .given{display:block;color:var(--muted);font-size:.4em;letter-spacing:.01em;margin-bottom:8px;}
+
+  .blurb{max-width:36em;margin:0;}
+  .place{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:26px 0 0;}
+
+  /* ---------- artwork placeholders ---------- */
+  .artwork,.figph{
+    border:1px dashed var(--rule);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:24px;
+  }
+  .artwork{margin:44px 0 0;min-height:220px;}
+  .figph{margin:34px 0;min-height:140px;}
+  .artwork span,.figph span{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* ---------- sections ---------- */
+  section{padding:64px 0;border-bottom:1px solid var(--rule);}
+  section:last-of-type{border-bottom:0;}
+  h2{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:1.7rem;
+    margin:0 0 28px;
+  }
+
+  /* ---------- work items ---------- */
+  .item{
+    display:block;
+    text-decoration:none;
+    color:inherit;
+    padding:22px 0;
+    border-top:1px solid var(--rule);
+    transition:background .18s ease, padding-left .18s ease;
+  }
+  .item:first-of-type{border-top:0;}
+  a.item:hover, a.item:focus-visible{
+    background:var(--accent-soft);
+    padding-left:14px;
+  }
+  .item h3{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:1.2rem;
+    margin:0 0 6px;
+  }
+  a.item h3{color:var(--accent);}
+  .item p{margin:0;color:var(--muted);font-size:16px;max-width:44em;}
+  .built-with{
+    font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+    color:var(--muted);text-transform:uppercase;margin-top:10px;
+  }
+
+  /* ---------- about ---------- */
+  .about p{max-width:36em;margin:0;}
+
+  /* ---------- publications ---------- */
+  .pub{padding:18px 0;border-top:1px solid var(--rule);}
+  .pub:first-of-type{border-top:0;}
+  .pub a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--accent);}
+  .pub a:hover,.pub a:focus-visible{color:var(--accent);}
+  .pub .meta{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:6px;display:block;}
+  .tally{font-family:var(--mono);font-size:12px;color:var(--muted);margin:22px 0 0;}
+
+  /* ---------- footer ---------- */
+  footer{padding:56px 0 80px;}
+  .links{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:26px;}
+  .links a{
+    font-family:var(--mono);font-size:13.5px;
+    color:var(--ink);text-decoration:none;
+    border-bottom:1px solid var(--rule);padding-bottom:2px;
+  }
+  .links a:hover,.links a:focus-visible{color:var(--accent);border-bottom-color:var(--accent);}
+
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none !important;}}
+
+  @media (max-width:600px){
+    body{font-size:17px;}
+    header{padding-top:52px;}
+    section{padding:48px 0;}
+    .artwork{min-height:170px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ============ NAME + BLURB ============ -->
+  <header>
+    <h1><span class="given">Robert G.</span>West</h1>
+
+    <p class="blurb">Thanks for visiting my Github Page! Here, you will find some information about me and examples of my creative projects I am building with a bit of coding and AI.</p>
+
+    <p class="place">Vienna &amp; Bratislava · Available now</p>
+
+    <!-- Replace this whole block with your Inkscape graphic once it is ready:
+         <div class="artwork"><img src="artwork.svg" alt="..."></div>  -->
+    <div class="artwork">
+      <span>Inkscape artwork in development</span>
+    </div>
+  </header>
+
+  <!-- ============ WHAT I AM WORKING ON ============
+       Paste each real URL into the href="" below.
+       Delete any item you are not ready to show.
+       ============================================== -->
+  <section>
+    <h2>What I am working on</h2>
+
+    <!-- REPLACE href with the live URL of the job board -->
+    <a class="item" href="#">
+      <h3>Job application tracker</h3>
+      <p>A browser tool for keeping applications, deadlines, and follow-ups in one place, built to replace a spreadsheet I had outgrown.</p>
+      <p class="built-with">HTML · JavaScript · Claude</p>
+    </a>
+
+    <!-- REPLACE href with the unlisted YouTube link once the screen recording is done -->
+    <a class="item" href="#">
+      <h3>Interactive physics notebook</h3>
+      <p>A textbook section rebuilt in Mathematica: tagged equations, hyperlinked cross-references, and static figures replaced with plots you can move. Short screen recording.</p>
+      <p class="built-with">Wolfram Mathematica</p>
+    </a>
+
+    <!-- REPLACE or DELETE this third slot -->
+    <a class="item" href="#">
+      <h3>Third project</h3>
+      <p>One sentence on what it does and who it is for.</p>
+      <p class="built-with">Tools used</p>
+    </a>
+  </section>
+
+  <!-- ============ ABOUT ME ============ -->
+  <section class="about">
+    <h2>About me</h2>
+
+    <p>I am an experimental physicist with roughly fifteen years in research and teaching across three countries. I spent seven years as a postdoctoral researcher at the Institute of Sensor and Actuator Systems, TU Wien, focused on nanomechanical sensing. Most recently, I published my creative solution for thermogravimetric spectroscopy and separation science in a co-authored paper, my shared vision for the future of photothermal spectroscopy, and original work on optical transduction of nanowire resonators.</p>
+
+    <div class="figph"><span>Figure placeholder</span></div>
+
+    <p>My doctoral work was in ultrafast multi-pulse absorption spectroscopy of light-harvesting systems, where I developed a kinetic modeling and regression code which made distinction of coupled excited states possible.</p>
+
+    <div class="figph"><span>Figure placeholder</span></div>
+
+    <p>My teaching experience spans graduate level to high school: engaging graduate lecturing, curriculum redesign, doctoral research mentoring, undergraduate physics laboratory instruction and tutoring, as well as high school mathematics courses, tutoring, and preparation for standardized college entry level testing in the USA.</p>
+
+    <div class="figph"><span>Figure placeholder</span></div>
+
+    <p>English is my native language, I speak Slovak, and my German is at B1 and improving.</p>
+  </section>
+
+  <!-- ============ PUBLICATIONS ============ -->
+  <section>
+    <h2>Selected publications</h2>
+
+    <div class="pub">
+      <a href="https://doi.org/10.1063/5.0338801">Position-dependent calibration and frequency stability in on-axis optical transduction of vertical InP nanowire resonators</a>
+      <span class="meta">Applied Physics Letters, 2026 · first author</span>
+    </div>
+
+    <div class="pub">
+      <a href="https://doi.org/10.1021/acs.jpcc.3c04361">Photothermal microscopy and spectroscopy with nanomechanical resonators</a>
+      <span class="meta">J. Phys. Chem. C 127, 21915 (2023) · first author · Editor's Choice</span>
+    </div>
+
+    <div class="pub">
+      <a href="https://doi.org/10.1021/acssensors.2c02435">Nanoelectromechanical infrared spectroscopy with in situ thermal desorption</a>
+      <span class="meta">ACS Sensors, 2023 · co-author</span>
+    </div>
+
+    <p class="tally">23 peer-reviewed articles · six first-authored · full list on ORCID</p>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <footer>
+    <p class="label">Get in touch</p>
+    <ul class="links">
+      <li><a href="mailto:westrobertg@gmail.com">westrobertg@gmail.com</a></li>
+      <li><a href="https://orcid.org/0000-0001-8005-644X">ORCID</a></li>
+      <li><a href="https://www.linkedin.com/in/rgwest">LinkedIn</a></li>
+      <!-- Optional: upload your CV as cv.pdf to the same repo and this link will work.
+      <li><a href="cv.pdf">CV (PDF)</a></li>
+      -->
+    </ul>
+  </footer>
+
+</div>
+</body>
+</html>
