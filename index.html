@@ -94,16 +94,48 @@
     margin:0 0 28px;
   }
 
-  /* ---------- work items ---------- */
+  /* ---------- project card with screenshot ---------- */
+  .card{
+    display:block;
+    text-decoration:none;
+    color:inherit;
+    max-width:520px;
+    border:1px solid var(--rule);
+    background:#fff;
+    overflow:hidden;
+    transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+  }
+  .card img{
+    display:block;
+    width:100%;
+    height:auto;
+    transition:transform .5s ease;
+  }
+  .card-title{
+    display:block;
+    font-family:var(--serif);
+    font-size:1.05rem;
+    padding:14px 16px;
+    border-top:1px solid var(--rule);
+  }
+  .card:hover,.card:focus-visible{
+    transform:translateY(-3px);
+    box-shadow:0 10px 26px rgba(20,24,26,.13);
+    border-color:var(--accent);
+  }
+  .card:hover img{transform:scale(1.03);}
+  .card:hover .card-title{color:var(--accent);}
+
+  /* ---------- plain text project rows ---------- */
   .item{
     display:block;
     text-decoration:none;
     color:inherit;
     padding:22px 0;
+    margin-top:34px;
     border-top:1px solid var(--rule);
     transition:background .18s ease, padding-left .18s ease;
   }
-  .item:first-of-type{border-top:0;}
   a.item:hover, a.item:focus-visible{
     background:var(--accent-soft);
     padding-left:14px;
@@ -144,7 +176,11 @@
 
   :focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
 
-  @media (prefers-reduced-motion:reduce){*{transition:none !important;}}
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;}
+    .card:hover{transform:none;}
+    .card:hover img{transform:none;}
+  }
 
   @media (max-width:600px){
     body{font-size:17px;}
@@ -173,18 +209,15 @@
     </div>
   </header>
 
-  <!-- ============ WHAT I AM WORKING ON ============
-       Paste each real URL into the href="" below.
-       Delete any item you are not ready to show.
-       ============================================== -->
+  <!-- ============ WHAT I AM WORKING ON ============ -->
   <section>
     <h2>What I am working on</h2>
 
-    <!-- REPLACE href with the live URL of the job board -->
-    <a class="item" href="#">
-      <h3>Job application tracker</h3>
-      <p>A browser tool for keeping applications, deadlines, and follow-ups in one place, built to replace a spreadsheet I had outgrown.</p>
-      <p class="built-with">HTML · JavaScript · Claude</p>
+    <!-- The board lives at kanban/index.html; the screenshot is kanban.png at the
+         top level of the repo. Both names are case-sensitive. -->
+    <a class="card" href="kanban/">
+      <img src="kanban.png" alt="Screenshot of the Job Search Kanban Board">
+      <span class="card-title">Job Search Kanban Board</span>
     </a>
 
     <!-- REPLACE href with the unlisted YouTube link once the screen recording is done -->
@@ -192,13 +225,6 @@
       <h3>Interactive physics notebook</h3>
       <p>A textbook section rebuilt in Mathematica: tagged equations, hyperlinked cross-references, and static figures replaced with plots you can move. Short screen recording.</p>
       <p class="built-with">Wolfram Mathematica</p>
-    </a>
-
-    <!-- REPLACE or DELETE this third slot -->
-    <a class="item" href="#">
-      <h3>Third project</h3>
-      <p>One sentence on what it does and who it is for.</p>
-      <p class="built-with">Tools used</p>
     </a>
   </section>
 
