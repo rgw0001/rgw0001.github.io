@@ -22,6 +22,8 @@
     --rule:#D2D8D2;
     --accent:#146A66;
     --accent-soft:rgba(20,106,102,.12);
+    --green-btn:#34A853;
+    --green-ink:#FFFFFF;
 
     /* Local names first, so your own LaTeX fonts are used if installed */
     --serif:"CMU Serif","Computer Modern Serif","Latin Modern Roman","IBM Plex Serif",Georgia,serif;
@@ -64,6 +66,31 @@
 
   .blurb{max-width:36em;margin:0;}
   .place{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:26px 0 0;}
+
+  /* ---------- download button ---------- */
+  .download-btn{
+    display:inline-block;
+    margin:28px 0 0 0;
+    padding:14px 28px;
+    background:var(--green-btn);
+    color:var(--green-ink);
+    text-decoration:none;
+    border-radius:8px;
+    font-weight:500;
+    font-size:16px;
+    border:none;
+    cursor:pointer;
+    transition:background .22s ease, transform .22s ease;
+    box-shadow:0 2px 8px rgba(52, 168, 83, 0.2);
+  }
+  .download-btn:hover{
+    background:#2d9645;
+    transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(52, 168, 83, 0.3);
+  }
+  .download-btn:active{
+    transform:translateY(0);
+  }
 
   /* ---------- artwork placeholders ---------- */
   .artwork,.figph{
@@ -180,6 +207,7 @@
     *{transition:none !important;}
     .card:hover{transform:none;}
     .card:hover img{transform:none;}
+    .download-btn:hover{transform:none;}
   }
 
   @media (max-width:600px){
@@ -187,6 +215,12 @@
     header{padding-top:52px;}
     section{padding:48px 0;}
     .artwork{min-height:170px;}
+    .download-btn{
+      display:block;
+      width:100%;
+      text-align:center;
+      padding:12px 20px;
+    }
   }
 </style>
 </head>
@@ -201,6 +235,10 @@
     <p class="blurb">Thanks for visiting my Github Page! Here, you will find some information about me and examples of my creative projects I am building with a bit of coding and AI.</p>
 
     <p class="place">Vienna &amp; Bratislava · Available now</p>
+
+    <a class="download-btn" href="kanban/kanbandemo.html" download="Job-Search-Kanban.html">
+      ⬇ Download for Yourself!
+    </a>
 
     <!-- Replace this whole block with your Inkscape graphic once it is ready:
          <div class="artwork"><img src="artwork.svg" alt="..."></div>  -->
@@ -232,15 +270,15 @@
   <section class="about">
     <h2>About me</h2>
 
-    <p>I am an experimental physicist with roughly fifteen years in research and teaching across three countries. I spent seven years as a postdoctoral researcher at the Institute of Sensor and Actuat[...]
+    <p>I am an experimental physicist with roughly fifteen years in research and teaching across three countries. I spent seven years as a postdoctoral researcher at the Institute of Sensor and Actuator Systems (ISAS) at the Vienna University of Technology, where I developed nanomechanical sensors for photothermal spectroscopy of nanostructures.</p>
 
     <div class="figph"><span>Figure placeholder</span></div>
 
-    <p>My doctoral work was in ultrafast multi-pulse absorption spectroscopy of light-harvesting systems, where I developed a kinetic modeling and regression code which made distinction of coupled exc[...]
+    <p>My doctoral work was in ultrafast multi-pulse absorption spectroscopy of light-harvesting systems, where I developed a kinetic modeling and regression code which made distinction of coupled relaxation pathways possible.</p>
 
     <div class="figph"><span>Figure placeholder</span></div>
 
-    <p>My teaching experience spans graduate level to high school: engaging graduate lecturing, curriculum redesign, doctoral research mentoring, undergraduate physics laboratory instruction and tutor[...]
+    <p>My teaching experience spans graduate level to high school: engaging graduate lecturing, curriculum redesign, doctoral research mentoring, undergraduate physics laboratory instruction and high school mentoring.</p>
 
     <div class="figph"><span>Figure placeholder</span></div>
 
