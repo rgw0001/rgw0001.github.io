@@ -85,7 +85,7 @@
   }
 
   /* ---------- sections ---------- */
-  section{padding:64px 0;border-bottom:1px solid var(--rule);}
+  section{padding:64px 0;border-bottom:1px solid var(--rule);} 
   section:last-of-type{border-bottom:0;}
   h2{
     font-family:var(--serif);
@@ -123,8 +123,8 @@
     box-shadow:0 10px 26px rgba(20,24,26,.13);
     border-color:var(--accent);
   }
-  .card:hover img{transform:scale(1.03);}
-  .card:hover .card-title{color:var(--accent);}
+  .card:hover img{transform:scale(1.03);} 
+  .card:hover .card-title{color:var(--accent);} 
 
   /* ---------- plain text project rows ---------- */
   .item{
@@ -146,7 +146,7 @@
     font-size:1.2rem;
     margin:0 0 6px;
   }
-  a.item h3{color:var(--accent);}
+  a.item h3{color:var(--accent);} 
   .item p{margin:0;color:var(--muted);font-size:16px;max-width:44em;}
   .built-with{
     font-family:var(--mono);font-size:11px;letter-spacing:.08em;
@@ -157,36 +157,36 @@
   .about p{max-width:36em;margin:0;}
 
   /* ---------- publications ---------- */
-  .pub{padding:18px 0;border-top:1px solid var(--rule);}
+  .pub{padding:18px 0;border-top:1px solid var(--rule);} 
   .pub:first-of-type{border-top:0;}
-  .pub a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--accent);}
-  .pub a:hover,.pub a:focus-visible{color:var(--accent);}
+  .pub a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--accent);} 
+  .pub a:hover,.pub a:focus-visible{color:var(--accent);} 
   .pub .meta{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:6px;display:block;}
   .tally{font-family:var(--mono);font-size:12px;color:var(--muted);margin:22px 0 0;}
 
   /* ---------- footer ---------- */
-  footer{padding:56px 0 80px;}
-  .links{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:26px;}
+  footer{padding:56px 0 80px;} 
+  .links{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:26px;} 
   .links a{
     font-family:var(--mono);font-size:13.5px;
     color:var(--ink);text-decoration:none;
     border-bottom:1px solid var(--rule);padding-bottom:2px;
   }
-  .links a:hover,.links a:focus-visible{color:var(--accent);border-bottom-color:var(--accent);}
+  .links a:hover,.links a:focus-visible{color:var(--accent);border-bottom-color:var(--accent);} 
 
   :focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
 
   @media (prefers-reduced-motion:reduce){
-    *{transition:none !important;}
-    .card:hover{transform:none;}
-    .card:hover img{transform:none;}
+    *{transition:none !important;} 
+    .card:hover{transform:none;} 
+    .card:hover img{transform:none;} 
   }
 
   @media (max-width:600px){
-    body{font-size:17px;}
-    header{padding-top:52px;}
-    section{padding:48px 0;}
-    .artwork{min-height:170px;}
+    body{font-size:17px;} 
+    header{padding-top:52px;} 
+    section{padding:48px 0;} 
+    .artwork{min-height:170px;} 
   }
 </style>
 </head>
@@ -224,6 +224,9 @@
     <a class="item" href="#">
       <h3>Interactive physics notebook</h3>
       <p>I turned a PDF version of my previous PI's book into an interactive Mathematica Notebook with the help of Claude Code to expedite the process.</p>
+      <div class="figph" style="padding:0;">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/RxeyHc4uWHw" title="Interactive physics notebook demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
       <p class="built-with">Wolfram Mathematica</p>
     </a>
   </section>
@@ -232,15 +235,15 @@
   <section class="about">
     <h2>About me</h2>
 
-    <p>I am an experimental physicist with roughly fifteen years in research and teaching across three countries. I spent seven years as a postdoctoral researcher at the Institute of Sensor and Actuator Systems (ISAS) at the Vienna University of Technology, where I developed nanomechanical sensors for photothermal spectroscopy of nanostructures.</p>
+    <p>I am an experimental physicist with roughly fifteen years in research and teaching across three countries. I spent seven years as a postdoctoral researcher at the Institute of Sensor and A[...]</p>
 
     <div class="figph"><span>Figure placeholder</span></div>
 
-    <p>My doctoral work was in ultrafast multi-pulse absorption spectroscopy of light-harvesting systems, where I developed a kinetic modeling and regression code which made distinction of coupled relaxation pathways possible.</p>
+    <p>My doctoral work was in ultrafast multi-pulse absorption spectroscopy of light-harvesting systems, where I developed a kinetic modeling and regression code which made distinction of couple[...]</p>
 
     <div class="figph"><span>Figure placeholder</span></div>
 
-    <p>My teaching experience spans graduate level to high school: engaging graduate lecturing, curriculum redesign, doctoral research mentoring, undergraduate physics laboratory instruction and high school mentoring.</p>
+    <p>My teaching experience spans graduate level to high school: engaging graduate lecturing, curriculum redesign, doctoral research mentoring, undergraduate physics laboratory instruction and high [...]</p>
 
     <div class="figph"><span>Figure placeholder</span></div>
 
