@@ -84,6 +84,12 @@
     color:var(--faint);
   }
 
+  /* ---------- responsive video wrapper (lazy-load) ---------- */
+  .video-wrapper{position:relative;width:100%;max-width:100%;padding-bottom:56.25%;height:0;cursor:pointer;background:#000;overflow:hidden;border-radius:6px}
+  .video-wrapper img.video-poster{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:block}
+  .video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--accent);border:0;color:#fff;font-size:22px;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(20,24,26,.18)}
+  .video-wrapper:focus{outline:3px solid rgba(20,106,102,.18)}
+
   /* ---------- sections ---------- */
   section{padding:64px 0;border-bottom:1px solid var(--rule);} 
   section:last-of-type{border-bottom:0;}
@@ -187,6 +193,7 @@
     header{padding-top:52px;} 
     section{padding:48px 0;} 
     .artwork{min-height:170px;} 
+    .video-wrapper{padding-bottom:56.25%;}
   }
 </style>
 </head>
@@ -225,7 +232,10 @@
       <h3>Interactive physics notebook</h3>
       <p>I turned a PDF version of my previous PI's book into an interactive Mathematica Notebook with the help of Claude Code to expedite the process.</p>
       <div class="figph" style="padding:0;">
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/RxeyHc4uWHw" title="Interactive physics notebook demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        <div class="video-wrapper" data-video-id="RxeyHc4uWHw" role="button" tabindex="0" aria-label="Play demo video">
+          <img class="video-poster" src="https://i.ytimg.com/vi/RxeyHc4uWHw/hqdefault.jpg" alt="Interactive physics notebook demo poster">
+          <button class="video-play" aria-hidden="true">▶</button>
+        </div>
       </div>
       <p class="built-with">Wolfram Mathematica</p>
     </a>
@@ -286,5 +296,53 @@
   </footer>
 
 </div>
+
+<script>
+// Lazy-load the YouTube embed when the user interacts with the poster.
+(function(){
+  function loadVideo(wrapper){
+    if(!wrapper || !wrapper.dataset) return;
+    const id = wrapper.dataset.videoId;
+    if(!id) return;
+    const iframe = document.createElement('iframe');
+    iframe.width = '560';
+    iframe.height = '315';
+    // privacy-enhanced and autoplay on click
+    iframe.src = 'https://www.youtube-nocookie.com/embed/' + id + '?rel=0&autoplay=1';
+    iframe.title = 'Interactive physics notebook demo';
+    iframe.frameBorder = '0';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.allowFullscreen = true;
+    iframe.loading = 'lazy';
+    // make responsive by wrapping in a container that preserves aspect ratio
+    const wrapperEl = document.createElement('div');
+    wrapperEl.style.position = 'relative';
+    wrapperEl.style.width = '100%';
+    wrapperEl.style.paddingBottom = '56.25%';
+    iframe.style.position = 'absolute';
+    iframe.style.left = '0';
+    iframe.style.top = '0';
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    wrapperEl.appendChild(iframe);
+    // replace the placeholder .video-wrapper with the iframe wrapper
+    wrapper.parentNode.replaceChild(wrapperEl, wrapper);
+  }
+
+  function onInteract(e){
+    const wrapper = e.currentTarget || e.target;
+    loadVideo(wrapper);
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const posters = document.querySelectorAll('.video-wrapper');
+    posters.forEach(p => {
+      p.addEventListener('click', onInteract, {once:true});
+      p.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onInteract({currentTarget:p}); } }, {once:true});
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
