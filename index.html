@@ -87,9 +87,11 @@
   /* ---------- responsive video wrapper (lazy-load) ---------- */
   /* Make the video match the width of the kanban card above (max-width:520px),
      but remain fluid on small screens. */
-  .video-wrapper{position:relative;width:100%;max-width:520px;padding-bottom:56.25%;height:0;cursor:pointer;background:#000;overflow:hidden;border-radius:6px;margin:0 auto}
+  .video-wrapper{position:relative;width:100%;max-width:520px;padding-bottom:56.25%;height:0;cursor:pointer;background:#000;overflow:hidden;border-radius:6px;margin:0}
   .video-wrapper img.video-poster{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:block}
-  .video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--accent);border:0;color:#fff;font-size:22px;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--accent);border:0;color:#fff;font-size:22px;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .18s ease}
+  .video-play:hover{transform:translate(-50%,-50%) scale(1.12)}
+  .video-play:active{transform:translate(-50%,-50%) scale(0.95)}
   .video-wrapper:focus{outline:3px solid rgba(20,106,102,.18)}
 
   /* ---------- sections ---------- */
@@ -321,7 +323,7 @@
     wrapperEl.style.position = 'relative';
     wrapperEl.style.width = '100%';
     wrapperEl.style.maxWidth = '520px';
-    wrapperEl.style.margin = '0 auto';
+    wrapperEl.style.margin = '0';
     wrapperEl.style.paddingBottom = '56.25%';
     iframe.style.position = 'absolute';
     iframe.style.left = '0';
