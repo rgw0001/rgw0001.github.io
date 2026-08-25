@@ -85,9 +85,11 @@
   }
 
   /* ---------- responsive video wrapper (lazy-load) ---------- */
-  .video-wrapper{position:relative;width:100%;max-width:100%;padding-bottom:56.25%;height:0;cursor:pointer;background:#000;overflow:hidden;border-radius:6px}
+  /* Make the video match the width of the kanban card above (max-width:520px),
+     but remain fluid on small screens. */
+  .video-wrapper{position:relative;width:100%;max-width:520px;padding-bottom:56.25%;height:0;cursor:pointer;background:#000;overflow:hidden;border-radius:6px;margin:0 auto}
   .video-wrapper img.video-poster{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:block}
-  .video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--accent);border:0;color:#fff;font-size:22px;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(20,24,26,.18)}
+  .video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--accent);border:0;color:#fff;font-size:22px;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center}
   .video-wrapper:focus{outline:3px solid rgba(20,106,102,.18)}
 
   /* ---------- sections ---------- */
@@ -245,15 +247,15 @@
   <section class="about">
     <h2>About me</h2>
 
-    <p>I am an experimental physicist with roughly fifteen years in research and teaching across three countries. I spent seven years as a postdoctoral researcher at the Institute of Sensor and A[...]</p>
+    <p>I am an experimental physicist with roughly fifteen years in research and teaching across three countries. I spent seven years as a postdoctoral researcher at the Institute of Sensor and A[...]
 
     <div class="figph"><span>Figure placeholder</span></div>
 
-    <p>My doctoral work was in ultrafast multi-pulse absorption spectroscopy of light-harvesting systems, where I developed a kinetic modeling and regression code which made distinction of couple[...]</p>
+    <p>My doctoral work was in ultrafast multi-pulse absorption spectroscopy of light-harvesting systems, where I developed a kinetic modeling and regression code which made distinction of couple[...]
 
     <div class="figph"><span>Figure placeholder</span></div>
 
-    <p>My teaching experience spans graduate level to high school: engaging graduate lecturing, curriculum redesign, doctoral research mentoring, undergraduate physics laboratory instruction and high [...]</p>
+    <p>My teaching experience spans graduate level to high school: engaging graduate lecturing, curriculum redesign, doctoral research mentoring, undergraduate physics laboratory instruction and [...]
 
     <div class="figph"><span>Figure placeholder</span></div>
 
@@ -318,12 +320,17 @@
     const wrapperEl = document.createElement('div');
     wrapperEl.style.position = 'relative';
     wrapperEl.style.width = '100%';
+    wrapperEl.style.maxWidth = '520px';
+    wrapperEl.style.margin = '0 auto';
     wrapperEl.style.paddingBottom = '56.25%';
     iframe.style.position = 'absolute';
     iframe.style.left = '0';
     iframe.style.top = '0';
     iframe.style.width = '100%';
     iframe.style.height = '100%';
+    // ensure the iframe inherits rounded corners
+    wrapperEl.style.borderRadius = '6px';
+    iframe.style.borderRadius = 'inherit';
     wrapperEl.appendChild(iframe);
     // replace the placeholder .video-wrapper with the iframe wrapper
     wrapper.parentNode.replaceChild(wrapperEl, wrapper);
