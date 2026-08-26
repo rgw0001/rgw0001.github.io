@@ -50,34 +50,43 @@
     margin:0 0 18px;
   }
 
-  /* ---------- hero ---------- */
-  header{padding:76px 0 0;}
-  h1{
-    font-family:var(--serif);
-    font-weight:400;
-    font-size:clamp(2.5rem,7vw,4.1rem);
-    line-height:1.04;
-    letter-spacing:-.01em;
-    margin:0 0 28px;
+  /* ---------- full-bleed banner (doubles as the page's h1) ---------- */
+  .site-banner{
+    display:block;
+    width:100%;
+    margin:0;
+    line-height:0;          /* kills the inline-image baseline gap */
   }
-  h1 .given{display:block;color:var(--muted);font-size:.4em;letter-spacing:.01em;margin-bottom:8px;}
+  .site-banner img{
+    display:block;
+    width:100%;
+    height:auto;
+
+    /* If the banner feels too tall on wide monitors, uncomment these two
+       lines to cap its height and crop the sides instead:
+    max-height:340px;
+    object-fit:cover;
+    */
+  }
+
+  /* ---------- hero ---------- */
+  header{padding:56px 0 0;}
 
   .blurb{max-width:36em;margin:0;}
   .place{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:26px 0 0;}
 
-  /* ---------- artwork placeholders ---------- */
-  .artwork,.figph{
+  /* ---------- figure placeholders ---------- */
+  .figph{
     border:1px dashed var(--rule);
     display:flex;
     align-items:center;
     justify-content:center;
     text-align:center;
     padding:24px;
+    margin:34px 0;
+    min-height:140px;
   }
-  .artwork{margin:44px 0 0;min-height:220px;}
-  .artwork img{max-width:100%;height:auto;border:none;}
-  .figph{margin:34px 0;min-height:140px;}
-  .artwork span,.figph span{
+  .figph span{
     font-family:var(--mono);
     font-size:12px;
     letter-spacing:.14em;
@@ -195,28 +204,26 @@
 
   @media (max-width:600px){
     body{font-size:17px;} 
-    header{padding-top:52px;} 
+    header{padding-top:40px;} 
     section{padding:48px 0;} 
-    .artwork{min-height:170px;} 
     .video-wrapper{padding-bottom:56.25%;}
   }
 </style>
 </head>
 <body>
 
+<!-- ============ FULL-WIDTH BANNER ============ -->
+<h1 class="site-banner">
+  <img src="banner.png" alt="Robert G. West — Experimental Physicist">
+</h1>
+
 <div class="wrap">
 
-  <!-- ============ NAME + BLURB ============ -->
+  <!-- ============ INTRO BLURB ============ -->
   <header>
-    <h1><span class="given">Robert G.</span> West</h1>
-
     <p class="blurb">Thanks for visiting my Github Page! Here, you will find some information about me and examples of my creative projects I am building with a bit of coding and AI.</p>
 
     <p class="place">Vienna &amp; Bratislava · Available now</p>
-
-    <div class="artwork">
-      <img src="banner.png" alt="Robert G. West — Experimental Physicist">
-    </div>
   </header>
 
   <!-- ============ WHAT I AM WORKING ON ============ -->
@@ -229,18 +236,19 @@
       <span class="card-title">Job Search Kanban Board</span>
     </a>
 
-    <!-- REPLACE href with the unlisted YouTube link once the screen recording is done -->
-    <a class="item" href="#">
+    <!-- This row is a plain <div>, not a link: the video lives inside it, and a
+         wrapping <a href="#"> was what made the page jump to the top on click. -->
+    <div class="item">
       <h3>Interactive physics notebook</h3>
       <p>I turned a PDF version of my previous PI's book into an interactive Mathematica Notebook with the help of Claude Code to expedite the process.</p>
-      <div class="figph" style="padding:0;">
+      <div class="figph" style="padding:0;border:0;">
         <div class="video-wrapper" data-video-id="RxeyHc4uWHw" role="button" tabindex="0" aria-label="Play demo video">
           <img class="video-poster" src="https://i.ytimg.com/vi/RxeyHc4uWHw/hqdefault.jpg" alt="Interactive physics notebook demo poster">
-          <button class="video-play" aria-hidden="true">▶</button>
+          <span class="video-play" aria-hidden="true">▶</span>
         </div>
       </div>
       <p class="built-with">Wolfram Mathematica</p>
-    </a>
+    </div>
 
     <a class="item" href="Slovak/index.html">
       <h3>Learn Slovak prefixes</h3>
@@ -341,16 +349,23 @@
     wrapper.parentNode.replaceChild(wrapperEl, wrapper);
   }
 
-  function onInteract(e){
-    const wrapper = e.currentTarget || e.target;
-    loadVideo(wrapper);
-  }
-
   document.addEventListener('DOMContentLoaded', function(){
     const posters = document.querySelectorAll('.video-wrapper');
     posters.forEach(p => {
-      p.addEventListener('click', onInteract, {once:true});
-      p.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onInteract({currentTarget:p}); } }, {once:true});
+      p.addEventListener('click', function(e){
+        // Belt and braces: stop any ancestor link from navigating, which is
+        // what used to scroll the page back to the top.
+        e.preventDefault();
+        e.stopPropagation();
+        loadVideo(p);
+      }, {once:true});
+      p.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          e.stopPropagation();
+          loadVideo(p);
+        }
+      }, {once:true});
     });
   });
 })();
