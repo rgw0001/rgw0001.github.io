@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slovak Prefix Map</title>
+<style>
+  :root{
+    --paper:#F7F8F7; --ink:#14181A; --muted:#5E6763; --rule:#DBE0DB;
+    --relative:#2E75B6; --transitive:#BF9000; --surpassive:#00954A; --culminative:#D42A1F;
+    --accent:#146A66;
+    --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5}
+  .wrap{max-width:1400px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:1.3rem;font-weight:600;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 18px;max-width:62ch}
+
+  .controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:14px}
+  .search{position:relative;flex:1 1 300px;max-width:380px}
+  .search input,select{width:100%;padding:10px 12px;font:inherit;border:1px solid #C6CEC8;border-radius:9px;background:#fff;color:var(--ink)}
+  select{flex:1 1 260px;max-width:340px;cursor:pointer}
+  .search input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+  .results{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--rule);
+    border-radius:9px;box-shadow:0 8px 24px rgba(20,24,26,.12);max-height:320px;overflow-y:auto;display:none}
+  .results.open{display:block}
+  .results button{display:block;width:100%;text-align:left;border:0;background:none;padding:9px 12px;font:inherit;cursor:pointer;border-bottom:1px solid #F0F2F0}
+  .results button:last-child{border-bottom:0}
+  .results button:hover,.results button.sel{background:#EAF2F1}
+
+  .legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0 0 12px;font-size:12.5px;font-weight:600}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:10px;height:10px;border-radius:50%}
+
+  .head{margin:16px 0 2px;font-size:1.4rem;font-weight:600;color:var(--ink)}
+  .sk{margin:0 0 4px;font-size:1.05rem;font-weight:600;color:var(--ink);line-height:1.35}
+  .base{color:var(--muted);font-size:14px;margin:0 0 8px}
+  .stage{background:#fff;border:1px solid var(--rule);border-radius:12px;overflow-x:auto;padding:6px}
+  svg{display:block;width:100%;height:auto;min-width:1040px}
+  .lbl{font-weight:700;font-size:16px}
+  .gl{font-size:11.5px;fill:#33403C}
+  .wire{stroke:#242B29;stroke-width:2;fill:none}
+  .dot{fill:#242B29}
+  .aspects{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:0 0 10px;font-size:14px}
+  .asp{font:inherit;font-weight:600;padding:5px 12px;border:1px solid #C6CEC8;background:#fff;border-radius:999px;cursor:pointer;color:var(--ink)}
+  .asp:hover{border-color:var(--accent)}
+  .asp.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .aspects em{color:var(--muted);font-size:12.5px;font-style:normal}
+  .has-ex{cursor:help;fill:#1F4F4C;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;text-decoration-color:#7FA9A5}
+  .has-ex:hover{fill:var(--accent);text-decoration-color:var(--accent)}
+  #tip{position:fixed;z-index:60;max-width:360px;background:#FFFDF4;color:var(--ink);
+       border:1px solid #D8CFA8;border-radius:9px;padding:9px 13px;font-size:15px;line-height:1.4;
+       box-shadow:0 8px 22px rgba(20,24,26,.16);pointer-events:none;opacity:0;transition:opacity .12s ease}
+  #tip.on{opacity:1}
+  .exnote{margin:0 0 8px;font-size:12.5px;color:var(--muted)}
+  .other{margin:12px 0 0;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Slovak prefix map</h1>
+  <p class="sub">Every prefix keeps a fixed place on the diagram; only the meanings change from verb to verb. Search a root or a prefixed form — <em>čítať</em>, <em>prečítať</em>, <em>-chod</em> — or pick from the list.</p>
+
+  <div class="controls">
+    <div class="search">
+      <input id="q" type="text" autocomplete="off" spellcheck="false" placeholder="Type a verb or root…">
+      <div id="res" class="results"></div>
+    </div>
+    <select id="pick" aria-label="All entries"></select>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:var(--relative)"></i>Relative</span>
+    <span><i style="background:var(--transitive)"></i>Transitive</span>
+    <span><i style="background:var(--surpassive)"></i>Surpassive</span>
+    <span><i style="background:var(--culminative)"></i>Culminative</span>
+  </div>
+
+  <div id="card"></div>
+  <div id="tip" role="tooltip"></div>
+</div>
+
+<script src="verbs.js"></script>
+<script>
+/* ============================================================
+   Geometry — every number lives here.
+   The filled dot at N is the origin of the action (ROZ).
+   Labels are pinned to the line or dot they belong to.
+   up:true  = the block grows upward, so the label stays welded
+              to the line and the glosses move away from it.
+   ============================================================ */
+const N = {x:520, y:420};
+const SLOTS = {
+  NAD :{x:520, y:198, a:'middle', up:true},
+  POD :{x:520, y:706, a:'middle'},
+  OB  :{x:386, y:292, a:'end'},
+  PO  :{x:410, y:570, a:'start'},
+  ZA  :{x:252, y:428, a:'end'},
+  OD  :{x:340, y:486, a:'end'},
+  ROZ :{x:482, y:458, a:'end'},
+  O   :{x:462, y:404, a:'end', up:true},
+  DO  :{x:640, y:448, a:'start'},
+  VZ  :{x:690, y:286, a:'end', up:true},
+  VY  :{x:828, y:238, a:'middle', up:true},
+  PRI :{x:744, y:406, a:'end', up:true},
+  PRE :{x:812, y:406, a:'start', up:true},
+  NA  :{x:944, y:246, a:'start'},
+  U   :{x:944, y:406, a:'start', up:true},
+  PRED:{x:944, y:442, a:'start'},
+  S   :{x:672, y:588, a:'end'},
+  Z   :{x:744, y:626, a:'end'},
+  V   :{x:944, y:600, a:'start'}
+};
+const CLASS = {
+  NAD:'relative', OB:'relative', PO:'relative', POD:'relative', O:'relative',
+  PRI:'relative', PRED:'relative', ZA:'relative',
+  ROZ:'transitive', OD:'transitive', DO:'transitive', VZ:'transitive', S:'transitive', Z:'transitive',
+  VY:'surpassive', PRE:'surpassive',
+  NA:'culminative', U:'culminative', V:'culminative'
+};
+const COLOR = {relative:'#2E75B6',transitive:'#BF9000',surpassive:'#00954A',culminative:'#D42A1F'};
+
+const WIRES = `
+  <!-- left arm: away from the origin. The head points at ZA. -->
+  <path class="wire" d="M 496 420 H 264" marker-end="url(#ah)"/>
+
+  <!-- right arm: toward the goal. DO arrives at the PRI dot; -->
+  <!-- PRE carries on through the opening to U / PRED.        -->
+  <path class="wire" d="M 544 420 H 746" marker-end="url(#ah)"/>
+  <circle class="dot" cx="762" cy="420" r="7"/>
+  <path class="wire" d="M 772 420 H 896" marker-end="url(#ah)"/>
+  <circle class="dot" cx="916" cy="420" r="7"/>
+
+  <!-- vertical axis: NAD above, POD below -->
+  <path class="wire" d="M 520 400 V 206" marker-end="url(#ah)"/>
+  <path class="wire" d="M 520 440 V 680" marker-end="url(#ah)"/>
+
+  <!-- OB passes over and past the origin -->
+  <path class="wire" d="M 398 292 H 468 C 486 292 490 246 520 246 C 550 246 554 292 572 292 H 626" marker-end="url(#ah)"/>
+  <!-- PO alongside: mirrored below at the same distance, centred on the dot, crossing POD -->
+  <path class="wire" d="M 398 548 H 626" marker-end="url(#ah)"/>
+
+  <!-- the arc: VZ rising, VY over the crest, NA landing on top -->
+  <path class="wire" d="M 536 410 Q 760 200 896 264" marker-end="url(#ah)"/>
+  <circle class="dot" cx="916" cy="272" r="7"/>
+
+  <!-- diagonal down, then through the lower opening: into -->
+  <path class="wire" d="M 532 434 L 700 600 H 896" marker-end="url(#ah)"/>
+  <circle class="dot" cx="916" cy="600" r="7"/>
+
+  <!-- the boundary: each bar opens where a line passes through it -->
+  <path class="wire thinbar" d="M 786 300 V 589 M 786 611 V 678 M 794 300 V 589 M 794 611 V 678"/>
+
+  <!-- o- goes around the origin -->
+  <!-- o- circles the origin, with the opening facing its own label -->
+  <path class="wire" d="M 488.1 431.6 A 34 34 0 1 1 508.4 451.9" marker-end="url(#ah)"/>
+  <circle class="dot" cx="520" cy="420" r="7"/>
+`;
+
+const BADGE = ['\u2460','\u2461','\u2462'];
+
+function esc(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+
+/* The legend card: the geometry with nothing but the prefixes on it. */
+const KEY_LABEL = {NAD:'NAD',OB:'OB',VZ:'VZ',VY:'VY',NA:'NA',ZA:'ZA',ROZ:'ROZ',OD:'OD',O:'O',
+  DO:'DO',PRI:'PRI',PRE:'PRE',U:'U',PRED:'PRED',PO:'PO',S:'S / SO',Z:'Z / ZO',V:'V / VO',POD:'POD'};
+const KEY_CARD = {
+  id:'key', title:'Prefixes', base:[],
+  entries:Object.keys(KEY_LABEL).map(k=>({slot:k,label:KEY_LABEL[k],glosses:[]}))
+};
+
+let CURRENT=null, ASPECT=null;
+
+function draw(card, aspect){
+  CURRENT=card; ASPECT = (aspect===undefined ? null : aspect);
+  const bySlot={}, orphans=[];
+  card.entries.forEach(e=>{
+    if(e.slot && SLOTS[e.slot]) (bySlot[e.slot]=bySlot[e.slot]||[]).push(e);
+    else orphans.push(e);
+  });
+
+  const multi={}; Object.entries(bySlot).forEach(([k,v])=>{ if(v.length>1) multi[k]=true; });
+  const paired = Object.keys(multi).length>0;
+
+  let g='';
+  for(const [slot,p] of Object.entries(SLOTS)){
+    let list=bySlot[slot]; if(!list) continue;
+    if(ASPECT!==null && list.length>1) list = list[ASPECT] ? [list[ASPECT]] : [];
+    if(!list.length) continue;
+    const col=COLOR[CLASS[slot]||'relative'];
+    let y=p.y;
+    list.forEach((e,k)=>{
+      const n=e.glosses.length;
+      const labY = p.up ? y - 13*n - 1 : y;
+      const badge = (list.length>1 && k<BADGE.length) ? BADGE[k]+' ' : (ASPECT!==null && paired && k===0 && multi[slot] ? BADGE[ASPECT]+' ' : '');
+      g+=`<text class="lbl" x="${p.x}" y="${labY}" text-anchor="${p.a}" fill="${col}">${badge}${esc(e.label)}</text>`;
+      e.glosses.forEach((gl,i)=>{
+        const x = (e.ex && e.ex[i]) ? e.ex[i] : null;
+        const attrs = x
+          ? ` class="gl has-ex" data-sk="${esc(x.sk)}" data-en="${esc(x.en)}"`
+          : ' class="gl"';
+        const tt = x ? `<title>${esc(x.sk)}</title>` : '';
+        g+=`<text${attrs} x="${p.x}" y="${labY + 15 + i*13}" text-anchor="${p.a}">${esc(gl)}${tt}</text>`;
+      });
+      y = p.up ? labY - 13 : labY + 22 + 13*n;
+    });
+  }
+
+  // rough text extents so the frame can sit evenly around the content
+  const W16=g=>g.length*10.6, W11=g=>g.length*6.9;
+  let minX=240, maxX=930, minY=192, maxY=692;   // the wires themselves
+  for(const [slot,p] of Object.entries(SLOTS)){
+    let l=bySlot[slot]; if(!l) continue;
+    if(ASPECT!==null && l.length>1) l = l[ASPECT] ? [l[ASPECT]] : [];
+    let yy=p.y;
+    l.forEach(e=>{
+      const n=e.glosses.length;
+      const labY = p.up ? yy - 13*n - 1 : yy;
+      const w = Math.max(W16(e.label)+14, ...e.glosses.map(W11), 0);
+      const x0 = p.a==='end' ? p.x-w : p.a==='middle' ? p.x-w/2 : p.x;
+      minX=Math.min(minX,x0); maxX=Math.max(maxX,x0+w);
+      minY=Math.min(minY,labY-14); maxY=Math.max(maxY,labY+15+n*13);
+      yy = p.up ? labY - 13 : labY + 22 + 13*n;
+    });
+  }
+  const hasEx = Object.values(bySlot).some(l=>l.some(e=>(e.ex||[]).some(Boolean)));
+  const M=42;
+  const vb = `${Math.round(minX-M)} ${Math.round(minY-M)} ${Math.round(maxX-minX+2*M)} ${Math.round(maxY-minY+2*M)}`;
+
+  let lines=0; Object.values(bySlot).forEach(l=>l.forEach(e=>{ lines += 1 + e.glosses.length; }));
+  const wide = lines > 52;
+
+  const vbW = Math.round(maxX-minX+2*M);
+  const pxW = Math.round(vbW*0.74);
+
+  const svg=`<svg style="width:${pxW}px" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="3.2" orient="auto">
+      <path d="M0,0 L8,3.2 L0,6.4 Z" fill="#242B29"/></marker></defs>
+    ${WIRES}${g}</svg>`;
+
+  const other = orphans.length
+    ? `<p class="other">Not on the diagram: ${orphans.map(o=>esc(o.label)+(o.glosses.length?' — '+esc(o.glosses.join(', ')):'')).join(' · ')}</p>` : '';
+
+  const sk=[], en=[];
+  (card.base||[]).forEach(t=>{ (/[a-z]/.test(t) || en.length ? en : sk).push(t); });
+  const forms2 = (sk.length?`<p class="sk">${sk.map(esc).join('<br>')}</p>`:'')
+               + (en.length?`<p class="base">${esc(en.join(' \u00b7 '))}</p>`:'');
+
+  const forms = (card.title||'').split(/[\u2192\/]/).map(t=>t.trim()).filter(Boolean);
+  const key = (paired && forms.length>1)
+    ? `<div class="aspects">
+         <button class="asp${ASPECT===null?' on':''}" data-asp="all">Both</button>
+         ${forms.slice(0,BADGE.length).map((f,i)=>
+            `<button class="asp${ASPECT===i?' on':''}" data-asp="${i}">${BADGE[i]} ${esc(f)}</button>`).join('')}
+         <em>a prefix listed twice has one entry per form, in the order they appear on the heading</em>
+       </div>`
+    : '';
+
+  document.getElementById('card').innerHTML =
+    `<div class="head">${esc(card.title)}</div>
+     ${forms2}
+     ${key}
+     ${hasEx?'<p class="exnote">Meanings in darker type carry an example sentence — hover or tap one.</p>':''}
+     <div class="stage">${svg}</div>${other}`;
+  bindExamples();
+  document.querySelectorAll('button.asp').forEach(b=>b.addEventListener('click',()=>{
+    draw(card, b.dataset.asp==='all' ? null : +b.dataset.asp);
+  }));
+  document.getElementById('pick').value = card.id;
+}
+
+/* ---------- dropdown with everything ---------- */
+const pick=document.getElementById('pick');
+const hasExamples = v => v.entries.some(e=>(e.ex||[]).some(Boolean));
+pick.innerHTML = `<option value="key">Overview — all prefixes</option>` +
+  VERBS.slice().sort((a,b)=>a.title.localeCompare(b.title,'sk'))
+  .map(v=>`<option value="${v.id}">${hasExamples(v)?'\u2022 ':''}${esc(v.title)}</option>`).join('');
+pick.addEventListener('change',()=>{
+  const v = pick.value==='key' ? KEY_CARD : VERBS.find(x=>x.id==pick.value);
+  if(v){ draw(v); document.getElementById('q').value=''; }
+});
+
+/* ---------- type-ahead ---------- */
+const fold=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const INDEX=VERBS.map(v=>{
+  const keys=new Set();
+  (v.lemmas||[]).forEach(l=>keys.add(fold(l.replace(/[^\p{L}]/gu,''))));
+  const stem=((v.lemmas&&v.lemmas[0])||'').replace(/^-/,'');
+  v.entries.forEach(e=>{
+    keys.add(fold(e.label.replace(/[^\p{L}]/gu,'')+stem));
+    keys.add(fold(e.label));
+  });
+  return {v,keys:[...keys].filter(Boolean)};
+});
+const q=document.getElementById('q'), res=document.getElementById('res');
+let cur=-1, shown=[];
+function search(term){
+  const t=fold(term.trim());
+  if(!t){res.classList.remove('open');return;}
+  shown=INDEX.map(r=>{
+    const starts=r.keys.some(k=>k.startsWith(t));
+    return (starts||r.keys.some(k=>k.includes(t)))?{r,starts}:null;
+  }).filter(Boolean)
+    .sort((a,b)=>(b.starts-a.starts)||a.r.v.title.localeCompare(b.r.v.title,'sk'))
+    .slice(0,12);
+  cur=-1;
+  res.innerHTML = shown.length
+    ? shown.map((s,i)=>`<button data-i="${i}">${esc(s.r.v.title)}</button>`).join('')
+    : '<button disabled style="color:#8B9490">No match</button>';
+  res.classList.add('open');
+  res.querySelectorAll('button[data-i]').forEach(b=>b.addEventListener('click',()=>choose(+b.dataset.i)));
+}
+function choose(i){
+  const s=shown[i]; if(!s) return;
+  draw(s.r.v); q.value=s.r.v.title; res.classList.remove('open');
+}
+q.addEventListener('input',()=>search(q.value));
+q.addEventListener('focus',()=>{if(q.value.trim())search(q.value);});
+q.addEventListener('keydown',e=>{
+  const btns=res.querySelectorAll('button[data-i]');
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    e.preventDefault(); if(!btns.length)return;
+    cur=(cur+(e.key==='ArrowDown'?1:-1)+btns.length)%btns.length;
+    btns.forEach(b=>b.classList.remove('sel')); btns[cur].classList.add('sel');
+    btns[cur].scrollIntoView({block:'nearest'});
+  }
+  if(e.key==='Enter'){e.preventDefault();choose(cur<0?0:cur);}
+  if(e.key==='Escape')res.classList.remove('open');
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.search'))res.classList.remove('open');});
+
+const tip=document.getElementById('tip');
+function hideTip(){ tip.classList.remove('on'); }
+function placeTip(ev){
+  const pad=14, w=tip.offsetWidth, h=tip.offsetHeight;
+  let x=ev.clientX+pad, y=ev.clientY+pad;
+  if(x+w>innerWidth-8)  x=Math.max(8, ev.clientX-w-pad);
+  if(y+h>innerHeight-8) y=Math.max(8, ev.clientY-h-pad);
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+}
+function showTip(el, ev){
+  const sk = el.getAttribute('data-sk');
+  if(!sk) return;
+  tip.textContent = sk;
+  tip.classList.add('on');
+  placeTip(ev);
+}
+/* Handlers are attached to the nodes themselves after each render, rather than
+   delegated, so SVG quirks around dataset and event targets cannot get in the way. */
+function bindExamples(){
+  document.querySelectorAll('.has-ex').forEach(el=>{
+    el.addEventListener('mouseenter', ev=>showTip(el, ev));
+    el.addEventListener('mousemove', placeTip);
+    el.addEventListener('mouseleave', hideTip);
+    el.addEventListener('click', ev=>{ ev.stopPropagation(); showTip(el, ev); });
+  });
+}
+document.addEventListener('click', e=>{ if(!e.target.closest || !e.target.closest('.has-ex')) hideTip(); });
+
+draw(KEY_CARD);
+</script>
+</body>
+</html>
