@@ -94,24 +94,31 @@
     color:var(--faint);
   }
 
-  /* ---------- responsive video wrapper (lazy-load) ---------- */
-  /* Make the video match the width of the kanban card above (max-width:520px),
-     but remain fluid on small screens. */
-  .video-wrapper{position:relative;width:100%;max-width:520px;padding-bottom:56.25%;height:0;cursor:pointer;background:#000;overflow:hidden;border-radius:6px;margin:0}
-  .video-wrapper img.video-poster{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:block}
-  .video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--accent);border:0;color:#fff;font-size:22px;width:64px;height:64px;border-radius:50%;display:flex;align-[...]
-  .video-play:hover{transform:translate(-50%,-50%) scale(1.12)}
-  .video-play:active{transform:translate(-50%,-50%) scale(0.95)}
-  .video-wrapper:focus{outline:3px solid rgba(20,106,102,.18)}
-
   /* ---------- sections ---------- */
-  section{padding:64px 0;border-bottom:1px solid var(--rule);} 
+  section{padding:64px 0;border-bottom:1px solid var(--rule);}
   section:last-of-type{border-bottom:0;}
   h2{
     font-family:var(--serif);
     font-weight:400;
     font-size:1.7rem;
     margin:0 0 28px;
+  }
+
+  /* ---------- project blocks ---------- */
+  /* Every project uses the same shape: heading, description, then a visual
+     (screenshot card or video). .project just handles the spacing between them. */
+  .project{padding-top:34px;margin-top:34px;border-top:1px solid var(--rule);}
+  .project:first-of-type{padding-top:0;margin-top:0;border-top:0;}
+  .project h3{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:1.2rem;
+    margin:0 0 6px;
+  }
+  .project p{margin:0 0 20px;color:var(--muted);font-size:16px;max-width:44em;}
+  .built-with{
+    font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+    color:var(--muted);text-transform:uppercase;margin:12px 0 0 !important;
   }
 
   /* ---------- project card with screenshot ---------- */
@@ -143,70 +150,66 @@
     box-shadow:0 10px 26px rgba(20,24,26,.13);
     border-color:var(--accent);
   }
-  .card:hover img{transform:scale(1.03);} 
-  .card:hover .card-title{color:var(--accent);} 
+  .card:hover img{transform:scale(1.03);}
+  .card:hover .card-title{color:var(--accent);}
 
-  /* ---------- plain text project rows ---------- */
-  .item{
-    display:block;
-    text-decoration:none;
-    color:inherit;
-    padding:22px 0;
-    margin-top:34px;
-    border-top:1px solid var(--rule);
-    transition:background .18s ease, padding-left .18s ease;
+  /* ---------- responsive video (click-to-load) ---------- */
+  /* Matches the width of the screenshot cards, fluid on small screens. */
+  .video-wrapper{
+    position:relative;width:100%;max-width:520px;
+    padding-bottom:56.25%;height:0;
+    cursor:pointer;background:#000;overflow:hidden;border-radius:6px;margin:0;
   }
-  a.item:hover, a.item:focus-visible{
-    background:var(--accent-soft);
-    padding-left:14px;
+  .video-wrapper img.video-poster{
+    position:absolute;left:0;top:0;width:100%;height:100%;
+    object-fit:cover;display:block;
   }
-  .item h3{
-    font-family:var(--serif);
-    font-weight:400;
-    font-size:1.2rem;
-    margin:0 0 6px;
+  .video-play{
+    position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%);
+    background:var(--accent);border:0;color:#fff;font-size:22px;
+    width:64px;height:64px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    padding-left:4px;                       /* optically centres the ▶ glyph */
+    transition:transform .22s ease;
   }
-  a.item h3{color:var(--accent);} 
-  .item p{margin:0;color:var(--muted);font-size:16px;max-width:44em;}
-  .built-with{
-    font-family:var(--mono);font-size:11px;letter-spacing:.08em;
-    color:var(--muted);text-transform:uppercase;margin-top:10px;
-  }
+  .video-wrapper:hover .video-play{transform:translate(-50%,-50%) scale(1.12);}
+  .video-wrapper:active .video-play{transform:translate(-50%,-50%) scale(.95);}
 
   /* ---------- about ---------- */
   .about p{max-width:36em;margin:0;}
 
   /* ---------- publications ---------- */
-  .pub{padding:18px 0;border-top:1px solid var(--rule);} 
+  .pub{padding:18px 0;border-top:1px solid var(--rule);}
   .pub:first-of-type{border-top:0;}
-  .pub a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--accent);} 
-  .pub a:hover,.pub a:focus-visible{color:var(--accent);} 
+  .pub a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--accent);}
+  .pub a:hover,.pub a:focus-visible{color:var(--accent);}
   .pub .meta{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:6px;display:block;}
   .tally{font-family:var(--mono);font-size:12px;color:var(--muted);margin:22px 0 0;}
 
   /* ---------- footer ---------- */
-  footer{padding:56px 0 80px;} 
-  .links{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:26px;} 
+  footer{padding:56px 0 80px;}
+  .links{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:26px;}
   .links a{
     font-family:var(--mono);font-size:13.5px;
     color:var(--ink);text-decoration:none;
     border-bottom:1px solid var(--rule);padding-bottom:2px;
   }
-  .links a:hover,.links a:focus-visible{color:var(--accent);border-bottom-color:var(--accent);} 
+  .links a:hover,.links a:focus-visible{color:var(--accent);border-bottom-color:var(--accent);}
 
   :focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
 
   @media (prefers-reduced-motion:reduce){
-    *{transition:none !important;} 
-    .card:hover{transform:none;} 
-    .card:hover img{transform:none;} 
+    *{transition:none !important;}
+    .card:hover{transform:none;}
+    .card:hover img{transform:none;}
+    .video-wrapper:hover .video-play{transform:translate(-50%,-50%);}
   }
 
   @media (max-width:600px){
-    body{font-size:17px;} 
-    header{padding-top:40px;} 
-    section{padding:48px 0;} 
-    .video-wrapper{padding-bottom:56.25%;}
+    body{font-size:17px;}
+    header{padding-top:40px;}
+    section{padding:48px 0;}
   }
 </style>
 </head>
@@ -221,54 +224,61 @@
 
   <!-- ============ INTRO BLURB ============ -->
   <header>
-    <p class="blurb">Thanks for visiting my Github Page! Here, you will find some information about me and examples of my creative projects I am building with a bit of coding and AI.</p>
+    <p class="blurb">Thanks for visiting my GitHub page. Here you will find some information about me, and examples of the projects I am building with a bit of coding and AI.</p>
 
     <p class="place">Vienna &amp; Bratislava · Available now</p>
   </header>
 
-  <!-- ============ WHAT I AM WORKING ON ============ -->
+  <!-- ============ WHAT I HAVE BUILT ============ -->
   <section>
     <h2>What I have built</h2>
-     <h3>Job Search Kanban Board</h3>
-     <p>To help me with my job search, I made a Kanban board. Press the gree button to download it for yourself!</p>
-    <a class="card" href="kanban/">
-      <img src="kanban/kanban.png" alt="Screenshot of the Job Search Kanban Board">
-      <span class="card-title">Job Search Kanban Board</span>
-    </a>
 
-    <!-- This row is a plain <div>, not a link: the video lives inside it, and a
-         wrapping <a href="#"> was what made the page jump to the top on click. -->
-    <div class="item">
+    <div class="project">
+      <h3>Job Search Kanban Board</h3>
+      <p>To help me with my job search, I made a Kanban board. Open it and press the green button to download a copy for yourself.</p>
+      <a class="card" href="kanban/">
+        <img src="kanban/kanban.png" alt="Screenshot of the Job Search Kanban Board">
+        <span class="card-title">Job Search Kanban Board</span>
+      </a>
+    </div>
+
+    <div class="project">
+      <h3>Learn Slovak prefixes</h3>
+      <p>A page for learning what prefixes mean for certain nouns and verbs in Slovak, according to my own linguistic convention.</p>
+      <a class="card" href="Slovak/">
+        <img src="Slovak/slovak.png" alt="Screenshot of the Slovak prefix map">
+        <span class="card-title">Learn Slovak prefixes</span>
+      </a>
+    </div>
+
+    <!-- Not a link: the video lives inside, and a wrapping <a href="#"> was
+         what used to make the page jump to the top on click. -->
+    <div class="project">
       <h3>Interactive physics notebook</h3>
-      <p>I turned a PDF version of my previous PI's book into an interactive Mathematica Notebook with the help of Claude Code to expedite the process.</p>
-      <div class="figph" style="padding:0;border:0;">
-        <div class="video-wrapper" data-video-id="RxeyHc4uWHw" role="button" tabindex="0" aria-label="Play demo video">
-          <img class="video-poster" src="https://i.ytimg.com/vi/RxeyHc4uWHw/hqdefault.jpg" alt="Interactive physics notebook demo poster">
-          <span class="video-play" aria-hidden="true">▶</span>
-        </div>
+      <p>I turned a PDF version of my previous PI's book into an interactive Mathematica notebook, using Claude Code to expedite the process.</p>
+      <div class="video-wrapper" data-video-id="RxeyHc4uWHw" role="button" tabindex="0" aria-label="Play the interactive physics notebook demo">
+        <img class="video-poster" src="https://i.ytimg.com/vi/RxeyHc4uWHw/hqdefault.jpg" alt="">
+        <span class="video-play" aria-hidden="true">▶</span>
       </div>
       <p class="built-with">Wolfram Mathematica</p>
     </div>
-
-    <a class="item" href="Slovak/index">
-      <h3>Learn Slovak prefixes</h3>
-      <p>I built a page for learning what prefixes mean for certain nouns and verbs in Slovak according to my own linguistic convention.</p>
-    </a>
   </section>
 
   <!-- ============ ABOUT ME ============ -->
   <section class="about">
     <h2>About me</h2>
 
-    <p>I am an experimental physicist with roughly fifteen years in research and teaching across three countries. I spent seven years as a postdoctoral researcher at the Institute of Sensor and A[...]
+    <!-- NOTE: the copy you sent me was cut off mid-sentence in these three
+         paragraphs. Paste your full text back in place of each one. -->
+    <p>I am an experimental physicist with roughly fifteen years in research and teaching across three countries. I spent seven years as a postdoctoral researcher at the Institute of Sensor and A[PARAGRAPH TRUNCATED — PASTE FULL TEXT HERE]</p>
 
     <div class="figph"><span>Figure placeholder</span></div>
 
-    <p>My doctoral work was in ultrafast multi-pulse absorption spectroscopy of light-harvesting systems, where I developed a kinetic modeling and regression code which made distinction of couple[...]
+    <p>My doctoral work was in ultrafast multi-pulse absorption spectroscopy of light-harvesting systems, where I developed a kinetic modeling and regression code which made distinction of couple[PARAGRAPH TRUNCATED — PASTE FULL TEXT HERE]</p>
 
     <div class="figph"><span>Figure placeholder</span></div>
 
-    <p>My teaching experience spans graduate level to high school: engaging graduate lecturing, curriculum redesign, doctoral research mentoring, undergraduate physics laboratory instruction and [...]
+    <p>My teaching experience spans graduate level to high school: engaging graduate lecturing, curriculum redesign, doctoral research mentoring, undergraduate physics laboratory instruction and [PARAGRAPH TRUNCATED — PASTE FULL TEXT HERE]</p>
 
     <div class="figph"><span>Figure placeholder</span></div>
 
@@ -313,59 +323,39 @@
 </div>
 
 <script>
-// Lazy-load the YouTube embed when the user interacts with the poster.
+// Swap the poster image for a real YouTube embed on first click or Enter/Space.
 (function(){
   function loadVideo(wrapper){
-    if(!wrapper || !wrapper.dataset) return;
-    const id = wrapper.dataset.videoId;
+    var id = wrapper.dataset && wrapper.dataset.videoId;
     if(!id) return;
-    const iframe = document.createElement('iframe');
-    iframe.width = '560';
-    iframe.height = '315';
-    // privacy-enhanced and autoplay on click
+
+    // Keep the same box the poster occupied, so nothing shifts on the page.
+    var shell = document.createElement('div');
+    shell.style.cssText = 'position:relative;width:100%;max-width:520px;padding-bottom:56.25%;height:0;border-radius:6px;overflow:hidden;margin:0;';
+
+    var iframe = document.createElement('iframe');
     iframe.src = 'https://www.youtube-nocookie.com/embed/' + id + '?rel=0&autoplay=1';
     iframe.title = 'Interactive physics notebook demo';
-    iframe.frameBorder = '0';
     iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
     iframe.allowFullscreen = true;
-    iframe.loading = 'lazy';
-    // make responsive by wrapping in a container that preserves aspect ratio
-    const wrapperEl = document.createElement('div');
-    wrapperEl.style.position = 'relative';
-    wrapperEl.style.width = '100%';
-    wrapperEl.style.maxWidth = '520px';
-    wrapperEl.style.margin = '0';
-    wrapperEl.style.paddingBottom = '56.25%';
-    iframe.style.position = 'absolute';
-    iframe.style.left = '0';
-    iframe.style.top = '0';
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    // ensure the iframe inherits rounded corners
-    wrapperEl.style.borderRadius = '6px';
-    iframe.style.borderRadius = 'inherit';
-    wrapperEl.appendChild(iframe);
-    // replace the placeholder .video-wrapper with the iframe wrapper
-    wrapper.parentNode.replaceChild(wrapperEl, wrapper);
+    iframe.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;border:0;';
+
+    shell.appendChild(iframe);
+    wrapper.parentNode.replaceChild(shell, wrapper);
   }
 
   document.addEventListener('DOMContentLoaded', function(){
-    const posters = document.querySelectorAll('.video-wrapper');
-    posters.forEach(p => {
+    document.querySelectorAll('.video-wrapper').forEach(function(p){
       p.addEventListener('click', function(e){
-        // Belt and braces: stop any ancestor link from navigating, which is
-        // what used to scroll the page back to the top on click.
         e.preventDefault();
-        e.stopPropagation();
         loadVideo(p);
       }, {once:true});
       p.addEventListener('keydown', function(e){
         if(e.key === 'Enter' || e.key === ' '){
           e.preventDefault();
-          e.stopPropagation();
           loadVideo(p);
         }
-      }, {once:true});
+      });
     });
   });
 })();
