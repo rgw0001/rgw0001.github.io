@@ -153,6 +153,46 @@
   .card:hover img{transform:scale(1.03);}
   .card:hover .card-title{color:var(--accent);}
 
+  /* A second line inside a card's footer, for the row of language cards. */
+  .card-title em{
+    display:block;font-style:normal;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--muted);margin-top:6px;
+  }
+
+  /* ---------- languages: one row of cards, scrolled sideways ---------- */
+  /* The cards keep the same shape as the ones above; only the row is new, so
+     more languages can be added later without the section growing downwards. */
+  .lang-row{
+    display:flex;
+    gap:22px;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch;
+    /* Breathing room for the cards' hover lift, which the scroller would clip. */
+    padding:6px 4px 18px;
+    margin:0 -4px;
+    scrollbar-width:thin;
+    scrollbar-color:var(--rule) transparent;
+  }
+  .lang-row .card{
+    flex:0 0 clamp(250px,76vw,384px);
+    max-width:none;
+    scroll-snap-align:start;
+  }
+  /* One aspect ratio for every preview, so the cards line up whatever the shot. */
+  .lang-row .card img{aspect-ratio:4/3;object-fit:cover;object-position:top left;}
+  .lang-row::-webkit-scrollbar{height:8px;}
+  .lang-row::-webkit-scrollbar-thumb{background:var(--rule);border-radius:4px;}
+  .lang-row::-webkit-scrollbar-thumb:hover{background:var(--faint);}
+  .lang-row::-webkit-scrollbar-track{background:transparent;}
+
+  .scroll-hint{
+    font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--faint);margin:0 0 12px !important;
+  }
+
   /* ---------- responsive video (click-to-load) ---------- */
   /* Matches the width of the screenshot cards, fluid on small screens. */
   .video-wrapper{
@@ -231,7 +271,7 @@
 
   <!-- ============ WHAT I HAVE BUILT ============ -->
   <section>
-    <h2>What I have built</h2>
+    <h2>What I have recently built</h2>
 
     <div class="project">
       <h3>Job Search Kanban Board</h3>
@@ -253,13 +293,35 @@
       </div>
       <p class="built-with">Wolfram Mathematica</p>
     </div>
+  </section>
 
-    <div class="project">
-      <h3>Learn Slovak prefixes</h3>
-      <p>A page for learning what prefixes mean for certain nouns and verbs in Slovak, according to my own linguistic convention.</p>
+  <!-- ============ LANGUAGES ============ -->
+  <!-- One scrollable row, so a new language page is a new <a class="card">
+       here and nothing else has to move. -->
+  <section>
+    <h2>Languages</h2>
+    <p class="scroll-hint">Scroll &rarr;</p>
+
+    <div class="lang-row">
       <a class="card" href="Slovak/">
         <img src="Slovak/Slovak.png" alt="Screenshot of the Slovak prefix map">
-        <span class="card-title">Learn Slovak prefixes</span>
+        <span class="card-title">Learn Slovak prefixes
+          <em>What a prefix does to a verb or noun</em>
+        </span>
+      </a>
+
+      <a class="card" href="slovak-cases/">
+        <img src="slovak-cases/slovak-cases.png" alt="Screenshot of the Slovak case chart">
+        <span class="card-title">Slovenské pády
+          <em>How to decline six Slovak cases</em>
+        </span>
+      </a>
+
+      <a class="card" href="czech-cases/">
+        <img src="czech-cases/czech-cases.png" alt="Screenshot of the Czech case chart">
+        <span class="card-title">České pády
+          <em>How to decline the seven Czech cases</em>
+        </span>
       </a>
     </div>
   </section>
