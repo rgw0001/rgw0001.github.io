@@ -218,6 +218,9 @@
 
   /* ---------- about ---------- */
   .about p{max-width:36em;margin:0;}
+  .about figure{max-width:36em;margin:34px 0;}
+  .about figure img{display:block;width:100%;height:auto;cursor:zoom-in;}
+  .about figure img:hover{opacity:.88;}
 
   /* ---------- publications ---------- */
   .pub{padding:18px 0;border-top:1px solid var(--rule);}
@@ -238,6 +241,51 @@
   .links a:hover,.links a:focus-visible{color:var(--accent);border-bottom-color:var(--accent);}
 
   :focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+
+  /* ---------- lightbox ---------- */
+  .lightbox{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:44px 24px;
+    background:rgba(20,24,26,.86);
+  }
+  .lightbox[open]{display:flex;}
+  .lightbox-inner{
+    position:relative;
+    max-width:96vw;
+    max-height:100%;
+  }
+  .lightbox-inner img{
+    display:block;
+    width:96vw;
+    max-width:none;
+    height:auto;
+    max-height:calc(100vh - 88px);
+    object-fit:contain;
+    background:var(--paper);
+    box-shadow:0 18px 60px rgba(0,0,0,.45);
+  }
+  .lightbox-close{
+    position:absolute;
+    top:-38px;
+    right:0;
+    width:32px;
+    height:32px;
+    padding:0;
+    border:1px solid rgba(241,243,240,.4);
+    background:transparent;
+    color:var(--paper);
+    font-family:var(--mono);
+    font-size:17px;
+    line-height:1;
+    cursor:pointer;
+  }
+  .lightbox-close:hover{background:rgba(241,243,240,.14);}
+  body.lightbox-open{overflow:hidden;}
 
   @media (prefers-reduced-motion:reduce){
     *{transition:none !important;}
@@ -334,7 +382,7 @@
          paragraphs. Paste your full text back in place of each one. -->
     <p>I am an experimental physicist with over fourteen years in research and teaching across three countries. Performing these two tasks well requires empathy, honesty, and acceptance of healthy criticism. With these principles I have published 23 papers as co-author, six as first author, taught graduate sensor technologies as well as bachelors and high school physics and math.</p>
 
-    <div class="figph"><span>Figure placeholder</span></div>
+    <figure><img src="postdocbit.png" alt="Robert G. West in the lab during his postdoc at TU Wien"></figure>
 
     <p>From December 2018 to July 2026, I had the honor of supporting the Research Unit of Nano- and Microsensors, in the Institute of Sensors and Actuator Systems (ISAS) at TU Wien, as an international postdoc with interdisciplinary experience. Though nanoelectromechanical sensors (NEMS) was a new subject for me, I mastered lock-in detection, PLLs, micro and nanoresonator fabrication and characterization including the physical noise characteristics and limits of these systems. I gained more experience with control systems interfacing and FEM simulations. The work I was most proud of was using my knowledge of the SVD and global and target analyses of ultrafast spectroscopy and applying it uniquely to "slow" thermogravimetric photothermal nanomechanical desorption spectroscopy-- boy, that's a mouthful -- inventing a new form of separation science for adsorbed chemical species. This was just part of an amazing co-authored work by my co-mentored doctorate student.</p>
     
@@ -423,6 +471,56 @@
         }
       });
     });
+  });
+})();
+</script>
+
+<!-- ============ IMAGE LIGHTBOX ============ -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged figure">
+  <div class="lightbox-inner">
+    <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close">&times;</button>
+    <img id="lightbox-img" src="" alt="">
+  </div>
+</div>
+
+<script>
+(function(){
+  var box    = document.getElementById('lightbox');
+  var boxImg = document.getElementById('lightbox-img');
+  var closer = document.getElementById('lightbox-close');
+  var opener = null;
+
+  function open(img){
+    opener = img;
+    boxImg.src = img.currentSrc || img.src;
+    boxImg.alt = img.alt;
+    box.setAttribute('open','');
+    document.body.classList.add('lightbox-open');
+    closer.focus();
+  }
+
+  function close(){
+    box.removeAttribute('open');
+    document.body.classList.remove('lightbox-open');
+    boxImg.src = '';
+    if(opener){ opener.focus(); opener = null; }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.about figure img').forEach(function(img){
+      img.tabIndex = 0;
+      img.setAttribute('role','button');
+      img.addEventListener('click', function(){ open(img); });
+      img.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(img); }
+      });
+    });
+  });
+
+  closer.addEventListener('click', close);
+  box.addEventListener('click', function(e){ if(e.target === box) close(); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && box.hasAttribute('open')) close();
   });
 })();
 </script>
