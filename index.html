@@ -72,7 +72,12 @@
   /* ---------- hero ---------- */
   header{padding:56px 0 0;}
 
-  .blurb{max-width:36em;margin:0;}
+  .blurb{
+    max-width:36em;
+    margin:0;
+    text-align:justify;
+    -webkit-hyphens:auto;hyphens:auto;
+  }
   .place{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:26px 0 0;}
 
   /* ---------- figure placeholders ---------- */
@@ -230,8 +235,14 @@
   .video-wrapper:active .video-play{transform:translate(-50%,-50%) scale(.95);}
 
   /* ---------- about ---------- */
-  .about p{max-width:36em;margin:0;}
+  .about p{
+    max-width:36em;
+    margin:0;
+    text-align:justify;
+    -webkit-hyphens:auto;hyphens:auto;
+  }
   .about figure{max-width:36em;margin:34px 0;}
+  .about .figph{max-width:36em;}   /* figures track the text measure */
   .about figure img{display:block;width:100%;height:auto;cursor:zoom-in;}
   .about figure img:hover{opacity:.88;}
 
