@@ -94,6 +94,19 @@
     color:var(--faint);
   }
 
+  /* a figure that fills the placeholder's footprint exactly */
+  .figph.is-figure{
+    border:0;
+    padding:0;
+    min-height:0;
+    display:block;
+  }
+  .figph.is-figure img{
+    display:block;
+    width:100%;
+    height:auto;
+  }
+
   /* ---------- sections ---------- */
   section{padding:64px 0;border-bottom:1px solid var(--rule);}
   section:last-of-type{border-bottom:0;}
@@ -382,7 +395,10 @@
          paragraphs. Paste your full text back in place of each one. -->
     <p>I am an experimental physicist with over fourteen years in research and teaching across three countries. Performing these two tasks well requires empathy, honesty, and acceptance of healthy criticism. With these principles I have published 23 papers as co-author, six as first author, taught graduate sensor technologies as well as bachelors and high school physics and math.</p>
 
-    <div class="figph"><span>Figure placeholder</span></div>
+    <div class="figph is-figure">
+      <img src="walk-animation.gif" width="804" height="140" loading="lazy" decoding="async"
+           alt="Animation of a walking figure crossing the flags of the United States, Czechia and Slovakia, heading towards a fourth, still-unknown flag">
+    </div>
 
     <p>From December 2018 to July 2026, I had the honor of supporting the Research Unit of Nano- and Microsensors, in the Institute of Sensors and Actuator Systems (ISAS) at TU Wien, as an international postdoc with interdisciplinary experience. Though nanoelectromechanical sensors (NEMS) was a new subject for me, I mastered lock-in detection, PLLs, micro and nanoresonator fabrication and characterization including the physical noise characteristics and limits of these systems. I gained more experience with control systems interfacing and FEM simulations. The work I was most proud of was using my knowledge of the SVD and global and target analyses of ultrafast spectroscopy and applying it uniquely to "slow" thermogravimetric photothermal nanomechanical desorption spectroscopy, inventing a new form of separation science for adsorbed chemical species. This was just part of an amazing co-authored <a href="https://doi.org/10.1021/acssensors.2c02435" target="_blank" rel="noopener">work</a> by my co-mentored doctorate student.</p>
     
