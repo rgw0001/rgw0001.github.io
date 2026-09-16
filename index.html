@@ -26,6 +26,12 @@
     /* Local names first, so your own LaTeX fonts are used if installed */
     --serif:"CMU Serif","Computer Modern Serif","Latin Modern Roman","IBM Plex Serif",Georgia,serif;
     --mono:"IBM Plex Mono",ui-monospace,monospace;
+
+    /* Banner height. The fallback comes from banner.png's aspect ratio
+       (4976 x 1516); a script below replaces it with the measured height. */
+    --banner-h:calc(100vw * 1516 / 4976);
+    /* The part of the banner that stays on screen while scrolling. */
+    --banner-stuck:calc(var(--banner-h) * .55);
   }
 
   *{box-sizing:border-box;}
@@ -39,7 +45,44 @@
     line-height:1.62;
   }
 
-  .wrap{max-width:860px;margin:0 auto;padding:0 28px;}
+  @media (prefers-reduced-motion:no-preference){
+    html{scroll-behavior:smooth;}
+  }
+
+  /* ---------- page layout: section menu on the left, content on the right ---------- */
+  .page{
+    display:grid;
+    grid-template-columns:220px minmax(0,1fr);
+  }
+  .wrap{max-width:860px;width:100%;margin:0 auto;padding:0 28px;}
+
+  /* ---------- section menu ---------- */
+  .side-nav{
+    position:sticky;
+    top:calc(var(--banner-stuck) + 32px);
+    align-self:start;
+    margin-top:56px;
+    padding-left:28px;
+  }
+  .side-nav ul{list-style:none;margin:0;padding:0;}
+  .side-nav li{margin:0 0 10px;}
+  .side-nav a{
+    display:block;
+    font-family:var(--serif);
+    font-size:15px;
+    line-height:1.35;
+    text-align:left;
+    color:var(--muted);
+    text-decoration:none;
+    padding-left:12px;
+    border-left:2px solid transparent;
+    transition:color .2s ease, border-color .2s ease;
+  }
+  .side-nav a:hover,.side-nav a:focus-visible{color:var(--accent);}
+  .side-nav a[aria-current="true"]{color:var(--ink);border-left-color:var(--accent);}
+
+  /* keep headings clear of the pinned banner when jumped to */
+  h2[id]{scroll-margin-top:calc(var(--banner-stuck) + 28px);}
 
   .label{
     font-family:var(--mono);
@@ -51,11 +94,16 @@
   }
 
   /* ---------- full-bleed banner (doubles as the page's h1) ---------- */
+  /* Sticky with a negative top: the upper 45% scrolls away, the lower 55% stays. */
   .site-banner{
     display:block;
     width:100%;
     margin:0;
     line-height:0;          /* kills the inline-image baseline gap */
+    position:sticky;
+    top:calc(var(--banner-h) * -.45);
+    z-index:50;
+    background:var(--paper);   /* the image's transparent margin stays opaque */
   }
   .site-banner img{
     display:block;
@@ -206,7 +254,7 @@
   .lang-row::-webkit-scrollbar-thumb:hover{background:var(--faint);}
   .lang-row::-webkit-scrollbar-track{background:transparent;}
 
-  .scroll-hint{
+  .scroll-hint,.project .scroll-hint{
     font-family:var(--mono);font-size:11px;letter-spacing:.1em;
     text-transform:uppercase;color:var(--faint);margin:0 0 12px !important;
   }
@@ -233,6 +281,65 @@
   }
   .video-wrapper:hover .video-play{transform:translate(-50%,-50%) scale(1.12);}
   .video-wrapper:active .video-play{transform:translate(-50%,-50%) scale(.95);}
+
+  /* ---------- what I am learning ---------- */
+  .courses{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:40px;
+  }
+  .course h3{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:1.1rem;
+    line-height:1.3;
+    margin:0;
+  }
+  .course .provider{
+    font-size:15px;
+    font-weight:400;
+    color:var(--muted);
+    margin:2px 0 16px;
+  }
+  /* A script caps the height at three topics; the rest scroll. */
+  .topics{
+    position:relative;
+    margin:0;
+    padding:0 10px 0 1.2em;
+    overflow-y:auto;
+    font-size:15px;
+    line-height:1.4;
+  }
+  .topics li{padding:0 0 16px;}
+  .topics li:last-child{padding-bottom:4px;}
+  .topics::-webkit-scrollbar{width:8px;}
+  .topics::-webkit-scrollbar-thumb{background:var(--rule);border-radius:4px;}
+  .topics::-webkit-scrollbar-thumb:hover{background:var(--faint);}
+  .topics::-webkit-scrollbar-track{background:transparent;}
+
+  .progress-row{display:flex;align-items:center;gap:10px;margin-top:7px;}
+  .progress{
+    flex:1;
+    height:12px;
+    border-radius:999px;
+    background:linear-gradient(to bottom,#CDD3CE,#E2E6E2);
+    box-shadow:inset 0 1px 2px rgba(20,24,26,.22), 0 1px 0 rgba(255,255,255,.9);
+    overflow:hidden;
+  }
+  .progress-fill{
+    display:block;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(to bottom,#3A938E 0%,var(--accent) 55%,#0E4F4C 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(0,0,0,.2);
+  }
+  .progress-value{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted);
+    min-width:3ch;
+    text-align:right;
+  }
 
   /* ---------- about ---------- */
   .about p{
@@ -318,10 +425,30 @@
     .video-wrapper:hover .video-play{transform:translate(-50%,-50%);}
   }
 
+  /* Narrow screens: the menu becomes a scrollable strip pinned under the banner. */
+  @media (max-width:1000px){
+    .page{grid-template-columns:minmax(0,1fr);}
+    .side-nav{
+      top:var(--banner-stuck);
+      z-index:40;
+      margin:0;
+      padding:10px 28px;
+      background:var(--paper);
+      border-bottom:1px solid var(--rule);
+      overflow-x:auto;
+    }
+    .side-nav ul{display:flex;gap:22px;white-space:nowrap;}
+    .side-nav li{margin:0;}
+    .side-nav a{padding:2px 0;border-left:0;border-bottom:2px solid transparent;}
+    .side-nav a[aria-current="true"]{border-bottom-color:var(--accent);}
+    h2[id]{scroll-margin-top:calc(var(--banner-stuck) + 76px);}
+  }
+
   @media (max-width:600px){
     body{font-size:17px;}
     header{padding-top:40px;}
     section{padding:48px 0;}
+    .courses{grid-template-columns:minmax(0,1fr);}
   }
 </style>
 </head>
@@ -332,18 +459,40 @@
   <img src="banner.png" alt="Robert G. West — Experimental Physicist">
 </h1>
 
+<div class="page">
+
+<!-- ============ SECTION MENU ============ -->
+<!-- One link per h2; each href matches that heading's id. -->
+<nav class="side-nav" aria-label="Sections">
+  <ul>
+    <li><a href="#learning">What I am learning</a></li>
+    <li><a href="#built">What I have recently built</a></li>
+    <li><a href="#about">About me</a></li>
+    <li><a href="#publications">Selected publications</a></li>
+  </ul>
+</nav>
+
 <div class="wrap">
 
   <!-- ============ INTRO BLURB ============ -->
   <header>
-    <p class="blurb">Thanks for visiting my GitHub page. Here you will find some information about me, and examples of the projects I am building with a bit of coding and AI.</p>
+    <p class="blurb">Thanks for visiting my GitHub page. Here you will find some information about me, what I am learning, and examples of the projects I am building with a bit of coding and AI.</p>
 
     <p class="place">Vienna &amp; Bratislava · Available now</p>
   </header>
 
+  <!-- ============ WHAT I AM LEARNING ============ -->
+  <!-- The courses are filled in from courses.json — edit that file, not this one.
+       Each list shows three topics, then scrolls. -->
+  <section>
+    <h2 id="learning">What I am learning</h2>
+
+    <div class="courses" id="courses"></div>
+  </section>
+
   <!-- ============ WHAT I HAVE BUILT ============ -->
   <section>
-    <h2>What I have recently built</h2>
+    <h2 id="built">What I have recently built</h2>
 
     <div class="project">
       <h3>Job Search Kanban Board</h3>
@@ -365,16 +514,15 @@
       </div>
       <p class="built-with">Wolfram Mathematica</p>
     </div>
-  </section>
 
-  <!-- ============ LANGUAGES ============ -->
-  <!-- One scrollable row, so a new language page is a new <a class="card">
-       here and nothing else has to move. -->
-  <section>
-    <h2>Languages</h2>
-    <p class="scroll-hint">Scroll &rarr;</p>
+    <!-- ============ LANGUAGES ============ -->
+    <!-- One scrollable row, so a new language page is a new <a class="card">
+         here and nothing else has to move. -->
+    <div class="project">
+      <h3>Languages</h3>
+      <p class="scroll-hint">Scroll &rarr;</p>
 
-    <div class="lang-row">
+      <div class="lang-row">
       <a class="card" href="Slovak/">
         <img src="Slovak/Slovak.png" alt="Screenshot of the Slovak prefix map">
         <span class="card-title">Learn Slovak prefixes
@@ -395,12 +543,13 @@
           <em>How to decline the seven Czech cases</em>
         </span>
       </a>
+      </div>
     </div>
   </section>
 
   <!-- ============ ABOUT ME ============ -->
   <section class="about">
-    <h2>About me</h2>
+    <h2 id="about">About me</h2>
 
     <!-- NOTE: the copy you sent me was cut off mid-sentence in these three
          paragraphs. Paste your full text back in place of each one. -->
@@ -428,7 +577,7 @@
 
   <!-- ============ PUBLICATIONS ============ -->
   <section>
-    <h2>Selected publications</h2>
+    <h2 id="publications">Selected publications</h2>
 
     <div class="pub">
       <a href="https://doi.org/10.1063/5.0338801">Position-dependent calibration and frequency stability in on-axis optical transduction of vertical InP nanowire resonators</a>
@@ -461,7 +610,122 @@
     </ul>
   </footer>
 
-</div>
+</div><!-- /.wrap -->
+</div><!-- /.page -->
+
+<script>
+// Pinned banner, section menu highlight, and the "what I am learning" progress lists.
+(function(){
+  var root   = document.documentElement;
+  var banner = document.querySelector('.site-banner');
+
+  // Measure the real banner height so the sticky offsets are exact.
+  function sizeBanner(){
+    if(banner.offsetHeight) root.style.setProperty('--banner-h', banner.offsetHeight + 'px');
+  }
+
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(text != null) e.textContent = text;
+    return e;
+  }
+
+  // Build the "What I am learning" columns from courses.json.
+  function renderCourses(courses){
+    var box = document.getElementById('courses');
+    box.textContent = '';
+    courses.forEach(function(course){
+      var col = el('div', 'course');
+      col.appendChild(el('h3', null, course.title));
+      col.appendChild(el('p', 'provider', course.provider));
+
+      var list = el('ul', 'topics');
+      (course.topics || []).forEach(function(topic){
+        var v = Math.max(0, Math.min(100, parseFloat(topic.progress) || 0));
+        var li = el('li');
+        li.appendChild(el('span', 'topic', topic.name));
+
+        var row = el('div', 'progress-row');
+        var bar = el('div', 'progress');
+        bar.setAttribute('role', 'progressbar');
+        bar.setAttribute('aria-valuemin', '0');
+        bar.setAttribute('aria-valuemax', '100');
+        bar.setAttribute('aria-valuenow', v);
+        bar.setAttribute('aria-label', topic.name);
+        var fill = el('span', 'progress-fill');
+        fill.style.width = v + '%';
+        bar.appendChild(fill);
+        row.appendChild(bar);
+
+        var num = el('span', 'progress-value', v + '%');
+        num.setAttribute('aria-hidden', 'true');
+        row.appendChild(num);
+
+        li.appendChild(row);
+        list.appendChild(li);
+      });
+      col.appendChild(list);
+      box.appendChild(col);
+    });
+    layout();
+  }
+
+  function loadCourses(){
+    fetch('courses.json', {cache:'no-cache'})
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(renderCourses)
+      .catch(function(err){
+        console.error('Could not load courses.json:', err);
+        document.getElementById('courses').appendChild(
+          el('p', 'provider', 'Course list could not be loaded.'));
+      });
+  }
+
+  // Show three topics per list; anything beyond scrolls.
+  function capLists(){
+    document.querySelectorAll('.topics').forEach(function(list){
+      var items = list.children;
+      if(items.length > 3){
+        var third = items[2];
+        list.style.maxHeight = (third.offsetTop + third.offsetHeight) + 'px';
+      } else {
+        list.style.maxHeight = '';
+      }
+    });
+  }
+
+  // Underline the menu entry for the section currently under the banner.
+  var links = [].slice.call(document.querySelectorAll('.side-nav a'));
+  var heads = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  var nav = document.querySelector('.side-nav');
+  var shown = -1;
+  function markCurrent(){
+    var line = banner.offsetHeight * .55 + 120;
+    var current = -1;
+    heads.forEach(function(h, i){ if(h && h.getBoundingClientRect().top <= line) current = i; });
+    if(window.innerHeight + window.scrollY >= document.body.scrollHeight - 2) current = heads.length - 1;
+    links.forEach(function(a, i){
+      if(i === current) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+    // On narrow screens the menu is a sideways strip: keep the current entry in view.
+    if(current !== shown && current >= 0 && nav.scrollWidth > nav.clientWidth){
+      nav.scrollLeft = links[current].offsetLeft - 28;
+    }
+    shown = current;
+  }
+
+  function layout(){ sizeBanner(); capLists(); markCurrent(); }
+
+  layout();
+  loadCourses();
+  banner.querySelector('img').addEventListener('load', layout);
+  window.addEventListener('load', layout);
+  window.addEventListener('resize', layout);
+  window.addEventListener('scroll', markCurrent, {passive:true});
+})();
+</script>
 
 <script>
 // Swap the poster image for a real YouTube embed on first click or Enter/Space.

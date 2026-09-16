@@ -1,0 +1,16 @@
+[
+  {
+    "title": "Project Management Course",
+    "provider": "Google",
+    "topics": [
+      { "name": "Fundamentals of Project Management", "progress": 75 }
+    ]
+  },
+  {
+    "title": "Deep Learning Fundamentals",
+    "provider": "World Quant University",
+    "topics": [
+      { "name": "Deep Learning Regression", "progress": 15 }
+    ]
+  }
+]

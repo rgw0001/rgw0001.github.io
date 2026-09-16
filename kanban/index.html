@@ -52,7 +52,7 @@ main{flex:1;overflow:hidden;display:flex}
 .gstat.g-decided .n{color:var(--g-decided)}
 .gstat .mini{font:600 12px 'Inter',sans-serif;color:var(--gold);margin-top:4px}
 .gstat .rate{font:500 11.5px 'Inter',sans-serif;color:var(--muted);margin-top:4px}
-#sideChart,#sideChart2{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+#sideChart,#sideChartLoc,#sideChart2{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
 .legend{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px}
 .legend span{display:inline-flex;align-items:center;gap:5px;font:500 11.5px 'Inter',sans-serif;color:var(--muted)}
 .legend i{width:9px;height:9px;border-radius:50%;display:inline-block}
@@ -93,6 +93,10 @@ main{flex:1;overflow:hidden;display:flex}
 .card.dragging{opacity:.45}
 .card h3{margin:0 0 2px;font:600 14.5px/1.35 'Inter',sans-serif;padding-right:20px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .card .co{color:var(--ink);opacity:.75;font-size:13px}
+.card .loc{display:flex;align-items:center;gap:4px;margin-top:3px;color:var(--muted);font-size:12.5px}
+.card .loc svg{flex:0 0 auto;color:#C2417F}
+.card .loc.none{opacity:.6}
+.card .loc.none svg{color:var(--muted)}
 .card .meta{display:flex;align-items:center;gap:8px;margin-top:9px;flex-wrap:wrap}
 .card .date{color:var(--muted);font-size:12.5px}
 .card .chip{color:var(--muted);font-size:12px}
@@ -225,7 +229,7 @@ footer{padding:8px 22px 14px;color:var(--muted);font-size:12px;text-align:center
         <div class="field"><label>Job Title</label><input id="fTitle"></div>
         <div class="field"><label>Company Name</label><input id="fCompany"></div>
         <div class="two-col">
-          <div class="field"><label>Location</label><input id="fLocation"></div>
+          <div class="field"><label>Location</label><input id="fLocation" list="locList" autocomplete="off"><datalist id="locList"></datalist></div>
           <div class="field"><label>Date</label><input id="fDate" type="date"></div>
         </div>
         <div class="url-row" style="margin-bottom:16px">
@@ -570,8 +574,49 @@ function renderSide(){
   });
   html += '<div id="sideChart"><h4>Over time</h4>' + timelineSvg(colKind) +
     '<div class="legend">' + GROUPS.map(g=>'<span><i style="background:'+g.cssVar+'"></i>'+g.label+'</span>').join('') + '</div></div>';
+  html += '<div id="sideChartLoc"><h4>Location</h4>' + locChartSvg() + '</div>';
   html += '<div id="sideChart2"><h4>Found via</h4>' + srcChartSvg() + '</div>';
   side.innerHTML = html;
+}
+/* ---------- Location ---------- */
+const PIN_SVG = '<svg width="11" height="14" viewBox="0 0 12 16" aria-hidden="true"><path fill="currentColor" d="M6 0C2.7 0 0 2.6 0 5.9 0 10.3 6 16 6 16s6-5.7 6-10.1C12 2.6 9.3 0 6 0zm0 8.2A2.3 2.3 0 1 1 6 3.6a2.3 2.3 0 0 1 0 4.6z"/></svg>';
+function locLabel(s){ return (s||'').trim().replace(/\s+/g,' '); }
+function locKey(s){ return locLabel(s).toLowerCase(); }
+/* Counts per location; spellings that differ only in case/spacing are merged,
+   shown under the most common spelling. */
+function locationCounts(){
+  const map = new Map();
+  jobs.forEach(j=>{
+    const k = locKey(j.location);
+    if(!map.has(k)) map.set(k, {key:k, n:0, spellings:{}});
+    const e = map.get(k); e.n++;
+    const lab = locLabel(j.location); e.spellings[lab] = (e.spellings[lab]||0) + 1;
+  });
+  return Array.from(map.values()).map(e=>({
+    key:e.key, n:e.n,
+    name: e.key ? Object.entries(e.spellings).sort((a,b)=>b[1]-a[1])[0][0] : 'Not defined'
+  }));
+}
+function locChartSvg(){
+  const counts = locationCounts();
+  if(!counts.length) return '<p class="ch-empty">No jobs yet.</p>';
+  const named = counts.filter(c=>c.key).sort((a,b)=> b.n - a.n || a.name.localeCompare(b.name));
+  const blank = counts.find(c=>!c.key);
+  const note = blank ? '<p class="ch-empty" style="margin:2px 0 0">'+blank.n+(blank.n===1?' job':' jobs')+' without a location</p>' : '';
+  if(!named.length) return note;
+  const list = named;
+  const W=230, rowH=34, padR=26, barH=9;
+  const maxN = Math.max(...list.map(c=>c.n));
+  let svg = '';
+  list.forEach((c,i)=>{
+    const y = i*rowH;
+    const w = Math.max(4, (W-padR) * c.n / maxN);
+    const col = SRC_PALETTE[i % SRC_PALETTE.length];
+    svg += '<text x="0" y="'+(y+12)+'" font-size="11.5" font-weight="600" fill="var(--ink)">'+esc(c.name)+'</text>';
+    svg += '<rect x="0" y="'+(y+18)+'" width="'+w+'" height="'+barH+'" rx="4.5" fill="'+col+'"/>';
+    svg += '<text x="'+(w+6)+'" y="'+(y+26)+'" font-size="11.5" font-weight="700" fill="'+col+'">'+c.n+'</text>';
+  });
+  return '<svg viewBox="0 0 '+W+' '+(list.length*rowH)+'" width="100%" role="img" aria-label="Jobs per location">'+svg+'</svg>' + note;
 }
 /* Horizontal bars: how many jobs came from each source. */
 const SRC_PALETTE = ['#0E9594','#7C4DBC','#C2417F','#4C9A52','#D95D39','#3E7CB1','#B98A1E','#5E548E'];
@@ -744,6 +789,7 @@ function cardEl(j){
   c.innerHTML = link +
     '<h3>' + (esc(j.title) || '(untitled)') + '</h3>' +
     '<div class="co">' + esc(j.company) + '</div>' +
+    '<div class="loc'+(locLabel(j.location)?'':' none')+'">' + PIN_SVG + '<span>' + (esc(locLabel(j.location)) || 'No location') + '</span></div>' +
     '<div class="meta"><span class="date">' + fmtDate(j.date) + '</span>' + chip + badge + '</div>';
   c.addEventListener('click',()=>openModal(j.id));
   c.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain', j.id); c.classList.add('dragging'); });
@@ -956,6 +1002,7 @@ function openModal(id, defaultCol){
   document.getElementById('modalTitle').textContent = id ? 'Edit Job' : 'Add Job';
   document.getElementById('btnRemove').style.display = id ? 'inline-flex' : 'none';
   fTitle.value = j.title; fCompany.value = j.company; fLocation.value = j.location || '';
+  document.getElementById('locList').innerHTML = locationCounts().filter(c=>c.key).map(c=>'<option value="'+esc(c.name)+'">').join('');
   fUrl.value = j.url || ''; fDesc.value = j.desc || '';
   fSource.value = sources.some(x=>x.id===j.source) ? j.source : '';
   fDate.value = j.date || ''; fStatus.value = j.status;
