@@ -3,7 +3,8 @@
     "title": "Project Management Course",
     "provider": "Google",
     "topics": [
-      { "name": "Fundamentals of Project Management", "progress": 86 }
+      { "name": "Fundamentals of Project Management", "progress": 100 },
+      { "name": "Project Initiation: Starting a Successful Project.", "progress": 0 }
     ]
   },
   {
