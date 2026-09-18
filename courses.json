@@ -1,7 +1,7 @@
 [
   {
     "title": "Project Management Courses",
-    "provider": <a href="https://www.coursera.org/professional-certificates/google-project-management">Google</a>,
+    "provider": "Google",
     "topics": [
       { "name": "Fundamentals of Project Management", "progress": 100 },
       { "name": "Project Initiation: Starting a Successful Project.", "progress": 0 }
@@ -10,7 +10,7 @@
 
   {
     "title": "Deep Learning Fundamentals",
-    "provider": <a href="https://www.wqu.edu/deep-learning-lab">World Quant University</a>,
+    "provider": "World Quant University",
     "topics": [
       { "name": "Deep Learning Regression", "progress": 43 }
     ]
