@@ -9,10 +9,10 @@
   },
 
   {
-    "title": "Deep Learning Fundamentals",
+    "title": "Deep Learning Course",
     "provider": "World Quant University",
     "topics": [
-      { "name": "Deep Learning Regression", "progress": 43 }
+      { "name": "Deep Learning Fundamentals Lab", "progress": 50 }
     ]
   }
 ]
