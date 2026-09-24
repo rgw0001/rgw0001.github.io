@@ -12,7 +12,7 @@
     "title": "Deep Learning Fundamentals Lab",
     "provider": "World Quant University",
     "topics": [
-      { "name": "Predicting Concrete Strength with Deep Learning Regression", "progress": 100 }
+      { "name": "Predicting Concrete Strength with Deep Learning Regression", "progress": 100 },
       { "name": "Diagnosing Heart Disease with Neural Networks", "progress": 0 }
     ]
   }
