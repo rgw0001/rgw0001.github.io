@@ -1,6 +1,6 @@
 [
   {
-    "title": "Project Management Courses",
+    "title": "Google Project Management Certificate program",
     "provider": "Google",
     "topics": [
       { "name": "Fundamentals of Project Management", "progress": 100 },
@@ -12,7 +12,7 @@
     "title": "Deep Learning Course",
     "provider": "World Quant University",
     "topics": [
-      { "name": "Deep Learning Fundamentals Lab", "progress": 85.75 }
+      { "name": "Deep Learning Fundamentals Lab", "progress": 100 }
     ]
   }
 ]
